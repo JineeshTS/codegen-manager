@@ -165,11 +165,13 @@
 - **Used By:** All models
 
 ### backend/app/repositories/base.py
-- **Status:** 📋 To Create First
+- **Status:** ✅ Implemented
+- **Task:** BE-004
 - **Exports:** `BaseRepository[T]`
-- **Methods:** `get()`, `get_all()`, `create()`, `update()`, `delete()`
-- **Depends On:** sqlalchemy
+- **Methods:** `get(id)`, `get_all(skip, limit)`, `create(obj)`, `update(obj)`, `delete(id)`
+- **Depends On:** BE-001, sqlalchemy
 - **Used By:** All repositories
+- **Description:** Generic async CRUD repository with TypeVar for model type safety
 
 ### backend/app/schemas/base.py
 - **Status:** 📋 To Create First
@@ -423,6 +425,7 @@ async def get_item(
 | 2025-12-17 | backend/app/core/database.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/config.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/security.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/base.py | Created | ✅ |
 
 ---
 
