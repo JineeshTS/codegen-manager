@@ -522,3 +522,9 @@ After generating ANY file:
 | 2025-12-17 | web/lib/features/projects/data/repositories/project_repository_impl.dart | Created | ✅ |
 | 2025-12-17 | web/lib/features/projects/presentation/providers/projects_provider.dart | Created | ✅ |
 | 2025-12-17 | web/lib/features/projects/presentation/providers/project_detail_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/project_card.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/progress_bar.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/platform_badge.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/platform_selector.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/github_connect_dialog.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/delete_confirmation_dialog.dart | Created | ✅ |
