@@ -140,10 +140,12 @@
 - **Methods:** `get_db()` - FastAPI dependency for database sessions
 
 ### backend/app/core/security.py
-- **Status:** 📋 To Create First
-- **Exports:** `get_password_hash`, `verify_password`, `create_access_token`, `create_refresh_token`, `decode_token`
-- **Depends On:** passlib, python-jose
+- **Status:** ✅ Implemented
+- **Task:** BE-003
+- **Exports:** `hash_password`, `verify_password`, `create_access_token`, `verify_token`
+- **Depends On:** BE-002, passlib, python-jose
 - **Used By:** AuthService, Dependencies
+- **Methods:** Password hashing with bcrypt, JWT token creation and verification
 
 ### backend/app/core/dependencies.py
 - **Status:** 📋 To Create First
@@ -420,6 +422,7 @@ async def get_item(
 | 2025-12-17 | CODE_REGISTRY.md | Created | ✅ |
 | 2025-12-17 | backend/app/core/database.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/config.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/security.py | Created | ✅ |
 
 ---
 
