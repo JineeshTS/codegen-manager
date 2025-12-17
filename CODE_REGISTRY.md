@@ -221,9 +221,12 @@
 ### Backend Files
 
 #### backend/app/models/user.py
-- **Status:** 📋 Pending
+- **Status:** ✅ Implemented
+- **Task:** BE-006
 - **Exports:** `User`
-- **Fields:** `id`, `email`, `hashed_password`, `full_name`, `is_active`, `is_superuser`, `created_at`, `updated_at`
+- **Fields:** `id` (UUID), `email` (String, unique, indexed), `hashed_password` (String), `full_name` (String), `is_active` (Boolean), `created_at` (DateTime), `updated_at` (DateTime)
+- **Depends On:** BE-001
+- **Description:** SQLAlchemy User model with UUID primary key and timestamps
 
 #### backend/app/schemas/auth.py
 - **Status:** 📋 Pending
@@ -429,6 +432,7 @@ async def get_item(
 | 2025-12-17 | backend/app/core/security.py | Created | ✅ |
 | 2025-12-17 | backend/app/repositories/base.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/exceptions.py | Created | ✅ |
+| 2025-12-17 | backend/app/models/user.py | Created | ✅ |
 
 ---
 
