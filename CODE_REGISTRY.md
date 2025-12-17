@@ -229,8 +229,10 @@
 - **Description:** SQLAlchemy User model with UUID primary key and timestamps
 
 #### backend/app/schemas/auth.py
-- **Status:** 📋 Pending
-- **Exports:** `LoginRequest`, `RegisterRequest`, `TokenResponse`, `RefreshRequest`
+- **Status:** ✅ Implemented
+- **Task:** BE-007
+- **Exports:** `RegisterRequest`, `LoginRequest`, `TokenResponse`, `UserResponse`
+- **Description:** Pydantic schemas for authentication with validation and serialization
 
 #### backend/app/schemas/user.py
 - **Status:** 📋 Pending
@@ -433,6 +435,7 @@ async def get_item(
 | 2025-12-17 | backend/app/repositories/base.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/exceptions.py | Created | ✅ |
 | 2025-12-17 | backend/app/models/user.py | Created | ✅ |
+| 2025-12-17 | backend/app/schemas/auth.py | Created | ✅ |
 
 ---
 

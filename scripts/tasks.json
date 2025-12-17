@@ -86,13 +86,14 @@
     "name": "Auth Schemas",
     "description": "Create Pydantic schemas for authentication requests and responses",
     "output_path": "backend/app/schemas/auth.py",
-    "status": "pending",
+    "status": "completed",
     "platform": "backend",
     "layer": "schema",
     "phase": 1,
     "depends_on": [],
     "exports": ["RegisterRequest", "LoginRequest", "TokenResponse", "UserResponse"],
     "estimated_hours": 2,
+    "completed_date": "2025-12-17",
     "detailed_requirements": "Pydantic models with BaseModel. RegisterRequest: email (EmailStr), password (str, min_length=8), full_name (str). LoginRequest: email (EmailStr), password (str). TokenResponse: access_token (str), refresh_token (str), token_type (str, default='bearer'). UserResponse: id (UUID), email (str), full_name (str), created_at (datetime). Use ConfigDict(from_attributes=True) for response models."
   }
 }
