@@ -440,6 +440,11 @@ async def get_item(
 | 2025-12-17 | backend/app/models/user.py | Created | ✅ |
 | 2025-12-17 | backend/app/schemas/auth.py | Created | ✅ |
 | 2025-12-17 | backend/app/repositories/user.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/dependencies.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/endpoints/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/router.py | Created | ✅ |
+| 2025-12-17 | backend/app/main.py | Created | ✅ |
 
 ---
 
