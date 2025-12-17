@@ -126,9 +126,10 @@
 ## Core Layer (Backend)
 
 ### backend/app/core/config.py
-- **Status:** 📋 To Create First
+- **Status:** ✅ Implemented
 - **Exports:** `Settings`, `settings`
-- **Contains:** All environment configuration
+- **Contains:** All environment configuration (DATABASE_URL, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, CORS_ORIGINS, DEBUG, ENVIRONMENT, APP_NAME)
+- **Depends On:** pydantic, pydantic-settings
 - **Used By:** Entire backend
 
 ### backend/app/core/database.py
@@ -418,6 +419,7 @@ async def get_item(
 |------|------|--------|----------|
 | 2025-12-17 | CODE_REGISTRY.md | Created | ✅ |
 | 2025-12-17 | backend/app/core/database.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/config.py | Created | ✅ |
 
 ---
 

@@ -1,0 +1,284 @@
+{
+  "project": "CodeGen Manager",
+  "version": "1.0.0",
+  "last_updated": "2025-12-17",
+  "phases": {
+    "phase_1_foundation": {
+      "name": "Foundation - Backend",
+      "tasks": [
+        {
+          "id": "BE-001",
+          "name": "Database Configuration",
+          "file": "backend/app/core/database.py",
+          "status": "completed",
+          "platform": "backend",
+          "layer": "core",
+          "depends_on": [],
+          "exports": ["engine", "async_session", "Base", "get_db"],
+          "estimated_hours": 4,
+          "completed_date": "2025-12-17"
+        },
+        {
+          "id": "BE-002",
+          "name": "Settings Configuration",
+          "file": "backend/app/core/config.py",
+          "status": "completed",
+          "platform": "backend",
+          "layer": "core",
+          "depends_on": [],
+          "exports": ["Settings", "settings"],
+          "estimated_hours": 2,
+          "completed_date": "2025-12-17",
+          "detailed_requirements": [
+            "Use Pydantic Settings for environment variables",
+            "Include DATABASE_URL, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES",
+            "Include CORS_ORIGINS as list",
+            "Include DEBUG flag",
+            "Load from .env file",
+            "Provide sensible defaults"
+          ]
+        },
+        {
+          "id": "BE-003",
+          "name": "Security Utilities",
+          "file": "backend/app/core/security.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "core",
+          "depends_on": ["BE-002"],
+          "exports": ["hash_password", "verify_password", "create_access_token", "verify_token"],
+          "estimated_hours": 4,
+          "detailed_requirements": [
+            "Use passlib for password hashing with bcrypt",
+            "Use python-jose for JWT tokens",
+            "hash_password(password: str) -> str",
+            "verify_password(plain: str, hashed: str) -> bool",
+            "create_access_token(data: dict, expires_delta: timedelta = None) -> str",
+            "verify_token(token: str) -> dict",
+            "Include full type hints and docstrings"
+          ]
+        },
+        {
+          "id": "BE-004",
+          "name": "Base Repository",
+          "file": "backend/app/repositories/base.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "repository",
+          "depends_on": ["BE-001"],
+          "exports": ["BaseRepository"],
+          "estimated_hours": 4,
+          "detailed_requirements": [
+            "Generic repository with type parameter T",
+            "Methods: get(id), get_all(skip, limit), create(obj), update(obj), delete(id)",
+            "All methods async",
+            "Use SQLAlchemy async session",
+            "Return Optional[T] for get, list[T] for get_all"
+          ]
+        },
+        {
+          "id": "BE-005",
+          "name": "Exception Handlers",
+          "file": "backend/app/core/exceptions.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "core",
+          "depends_on": [],
+          "exports": ["AppException", "NotFoundException", "UnauthorizedException", "handlers"],
+          "estimated_hours": 3,
+          "detailed_requirements": [
+            "Custom exception classes inheriting from Exception",
+            "AppException base class with status_code and detail",
+            "NotFoundException(message: str)",
+            "UnauthorizedException(message: str)",
+            "ValidationException(message: str, errors: dict)",
+            "FastAPI exception handlers dictionary"
+          ]
+        },
+        {
+          "id": "BE-006",
+          "name": "User Model",
+          "file": "backend/app/models/user.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "model",
+          "depends_on": ["BE-001"],
+          "exports": ["User"],
+          "estimated_hours": 3,
+          "detailed_requirements": [
+            "SQLAlchemy model inheriting from Base",
+            "Fields: id (UUID), email (String, unique, indexed), hashed_password (String)",
+            "Fields: full_name (String), is_active (Boolean, default True)",
+            "Fields: created_at (DateTime), updated_at (DateTime, onupdate)",
+            "Use UUID primary key with server_default=uuid.uuid4()",
+            "Add __tablename__ = 'users'"
+          ]
+        },
+        {
+          "id": "BE-007",
+          "name": "Auth Schemas",
+          "file": "backend/app/schemas/auth.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "schema",
+          "depends_on": [],
+          "exports": ["RegisterRequest", "LoginRequest", "TokenResponse", "UserResponse"],
+          "estimated_hours": 2,
+          "detailed_requirements": [
+            "Pydantic models with BaseModel",
+            "RegisterRequest: email (EmailStr), password (str, min 8), full_name (str)",
+            "LoginRequest: email (EmailStr), password (str)",
+            "TokenResponse: access_token (str), refresh_token (str), token_type (str)",
+            "UserResponse: id (UUID), email (str), full_name (str), created_at (datetime)",
+            "Use ConfigDict(from_attributes=True) for response models"
+          ]
+        },
+        {
+          "id": "BE-008",
+          "name": "User Repository",
+          "file": "backend/app/repositories/user.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "repository",
+          "depends_on": ["BE-004", "BE-006"],
+          "exports": ["UserRepository"],
+          "estimated_hours": 3,
+          "detailed_requirements": [
+            "Inherit from BaseRepository[User]",
+            "Add method: get_by_email(email: str) -> Optional[User]",
+            "Use select() with where clause",
+            "Return scalar_one_or_none()"
+          ]
+        },
+        {
+          "id": "BE-009",
+          "name": "Auth Service",
+          "file": "backend/app/services/auth.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "service",
+          "depends_on": ["BE-003", "BE-008"],
+          "exports": ["AuthService"],
+          "estimated_hours": 5,
+          "detailed_requirements": [
+            "AuthService class with __init__(session: AsyncSession)",
+            "Methods: register(data: RegisterRequest) -> User",
+            "Methods: login(email: str, password: str) -> tuple[User, str]",
+            "Methods: get_current_user(token: str) -> User",
+            "Methods: update_profile(user_id: UUID, full_name: str) -> User",
+            "Raise appropriate exceptions on errors",
+            "Use UserRepository for database operations"
+          ]
+        },
+        {
+          "id": "BE-010",
+          "name": "Auth Dependencies",
+          "file": "backend/app/api/dependencies.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "api",
+          "depends_on": ["BE-009"],
+          "exports": ["get_current_user", "get_current_active_user"],
+          "estimated_hours": 2,
+          "detailed_requirements": [
+            "FastAPI dependencies using Depends()",
+            "get_current_user: extract token from Authorization header",
+            "Verify token and return User",
+            "get_current_active_user: call get_current_user and check is_active",
+            "Raise HTTPException(401) if unauthorized"
+          ]
+        },
+        {
+          "id": "BE-011",
+          "name": "Auth Endpoints",
+          "file": "backend/app/api/v1/endpoints/auth.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "endpoint",
+          "depends_on": ["BE-009", "BE-010", "BE-007"],
+          "exports": ["router"],
+          "estimated_hours": 4,
+          "detailed_requirements": [
+            "APIRouter with prefix='/auth'",
+            "POST /register: RegisterRequest -> UserResponse + token",
+            "POST /login: LoginRequest -> TokenResponse",
+            "POST /logout: requires auth -> success response",
+            "GET /me: requires auth -> UserResponse",
+            "PUT /me: requires auth, update data -> UserResponse",
+            "Use Depends(get_db) for database session",
+            "Use Depends(get_current_user) for protected routes"
+          ]
+        },
+        {
+          "id": "BE-012",
+          "name": "API Router Setup",
+          "file": "backend/app/api/v1/router.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "api",
+          "depends_on": ["BE-011"],
+          "exports": ["api_router"],
+          "estimated_hours": 1,
+          "detailed_requirements": [
+            "Create APIRouter with prefix='/api/v1'",
+            "Include auth router",
+            "Export as api_router"
+          ]
+        },
+        {
+          "id": "BE-013",
+          "name": "App Factory",
+          "file": "backend/app/main.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "core",
+          "depends_on": ["BE-012", "BE-005"],
+          "exports": ["app"],
+          "estimated_hours": 3,
+          "detailed_requirements": [
+            "Create FastAPI app instance",
+            "Add CORS middleware with origins from settings",
+            "Include api_router",
+            "Add exception handlers",
+            "Add startup and shutdown events if needed",
+            "Configure docs at /docs"
+          ]
+        },
+        {
+          "id": "BE-014",
+          "name": "Alembic Setup",
+          "file": "backend/alembic/env.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "migration",
+          "depends_on": ["BE-001", "BE-006"],
+          "exports": [],
+          "estimated_hours": 2,
+          "detailed_requirements": [
+            "Configure Alembic for async SQLAlchemy",
+            "Import Base from app.core.database",
+            "Import all models",
+            "Set target_metadata = Base.metadata",
+            "Configure async engine"
+          ]
+        },
+        {
+          "id": "BE-015",
+          "name": "Initial Migration",
+          "file": "backend/alembic/versions/001_initial.py",
+          "status": "pending",
+          "platform": "backend",
+          "layer": "migration",
+          "depends_on": ["BE-014"],
+          "exports": [],
+          "estimated_hours": 1,
+          "detailed_requirements": [
+            "Create users table migration",
+            "Use alembic revision --autogenerate",
+            "Review and adjust generated migration"
+          ]
+        }
+      ]
+    }
+  }
+}
