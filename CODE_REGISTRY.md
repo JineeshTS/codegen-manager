@@ -1,0 +1,446 @@
+# CODE REGISTRY
+## Project: [PROJECT_NAME]
+## Stack: Flutter + FastAPI + PostgreSQL
+## Last Updated: [DATE] by Claude
+
+---
+
+# INSTRUCTIONS FOR CLAUDE
+
+1. **READ this file BEFORE generating ANY code**
+2. **UPDATE this file AFTER generating ANY code**
+3. **NEVER recreate utilities listed in Quick Reference**
+4. **FOLLOW patterns from existing implementations**
+
+---
+
+# QUICK REFERENCE
+
+## Import Patterns (Flutter)
+
+| When you need... | Import this |
+|------------------|-------------|
+| Result/Failure types | `package:[app]/core/types/result.dart` |
+| API Client | `package:[app]/core/network/api_client.dart` |
+| Secure Storage | `package:[app]/core/storage/secure_storage.dart` |
+| Local Storage | `package:[app]/core/storage/local_storage.dart` |
+| Validators | `package:[app]/core/utils/validators.dart` |
+| App Router | `package:[app]/core/router/app_router.dart` |
+| Theme | `package:[app]/core/theme/app_theme.dart` |
+| Constants | `package:[app]/core/constants/app_constants.dart` |
+
+## Import Patterns (Python)
+
+| When you need... | Import this |
+|------------------|-------------|
+| Database session | `from app.core.database import get_db` |
+| Current user | `from app.core.dependencies import get_current_user` |
+| Password hashing | `from app.core.security import get_password_hash, verify_password` |
+| JWT | `from app.core.security import create_access_token` |
+| Base model | `from app.models.base import Base, TimestampMixin` |
+| Base repository | `from app.repositories.base import BaseRepository` |
+| Exceptions | `from app.core.exceptions import NotFoundError, ConflictError` |
+
+## Shared Utilities (NEVER RECREATE)
+
+| Utility | Flutter Path | Python Path |
+|---------|--------------|-------------|
+| Result type | `core/types/result.dart` | N/A |
+| HTTP client | `core/network/api_client.dart` | `httpx` |
+| Auth storage | `core/storage/secure_storage.dart` | N/A |
+| Password hash | N/A | `core/security.py` |
+| JWT handling | N/A | `core/security.py` |
+| Base CRUD | N/A | `repositories/base.py` |
+
+---
+
+# FILE REGISTRY
+
+## Core Layer (Flutter)
+
+### mobile/lib/core/types/result.dart
+- **Status:** 📋 To Create First
+- **Exports:** `Result<T>`, `Failure`, `ServerFailure`, `NetworkFailure`, `CacheFailure`, `ValidationFailure`, `UnauthorizedFailure`, `NotFoundFailure`
+- **Depends On:** freezed
+- **Used By:** All repositories
+
+### mobile/lib/core/network/api_client.dart
+- **Status:** 📋 To Create First
+- **Exports:** `ApiClient`
+- **Methods:** `get()`, `post()`, `put()`, `delete()`, `upload()`
+- **Depends On:** dio
+- **Used By:** All remote data sources
+
+### mobile/lib/core/network/interceptors/auth_interceptor.dart
+- **Status:** 📋 To Create First
+- **Exports:** `AuthInterceptor`
+- **Depends On:** dio, SecureStorage
+- **Used By:** ApiClient
+
+### mobile/lib/core/network/interceptors/error_interceptor.dart
+- **Status:** 📋 To Create First
+- **Exports:** `ErrorInterceptor`
+- **Depends On:** dio
+- **Used By:** ApiClient
+
+### mobile/lib/core/storage/secure_storage.dart
+- **Status:** 📋 To Create First
+- **Exports:** `SecureStorage`
+- **Methods:** `getAccessToken()`, `setAccessToken()`, `getRefreshToken()`, `setRefreshToken()`, `clearTokens()`
+- **Depends On:** flutter_secure_storage
+- **Used By:** AuthInterceptor, AuthService
+
+### mobile/lib/core/storage/local_storage.dart
+- **Status:** 📋 To Create First
+- **Exports:** `LocalStorage`
+- **Methods:** `getString()`, `setString()`, `getBool()`, `setBool()`, `remove()`, `clear()`
+- **Depends On:** shared_preferences
+- **Used By:** Settings, Cache
+
+### mobile/lib/core/router/app_router.dart
+- **Status:** 📋 To Create First
+- **Exports:** `appRouter`, `AppRoutes`
+- **Depends On:** go_router
+- **Used By:** App entry point
+
+### mobile/lib/core/theme/app_theme.dart
+- **Status:** 📋 To Create First
+- **Exports:** `AppTheme`, `lightTheme`, `darkTheme`
+- **Depends On:** flutter
+- **Used By:** MaterialApp
+
+### mobile/lib/core/constants/api_constants.dart
+- **Status:** 📋 To Create First
+- **Exports:** `ApiConstants`
+- **Contains:** All API endpoint paths
+- **Used By:** All data sources
+
+### mobile/lib/core/utils/validators.dart
+- **Status:** 📋 To Create First
+- **Exports:** `Validators`
+- **Methods:** `email()`, `password()`, `phone()`, `required()`, `minLength()`, `maxLength()`
+- **Used By:** All forms
+
+---
+
+## Core Layer (Backend)
+
+### backend/app/core/config.py
+- **Status:** 📋 To Create First
+- **Exports:** `Settings`, `settings`
+- **Contains:** All environment configuration
+- **Used By:** Entire backend
+
+### backend/app/core/database.py
+- **Status:** 📋 To Create First
+- **Exports:** `engine`, `AsyncSessionLocal`, `Base`, `get_db`
+- **Depends On:** sqlalchemy, asyncpg
+- **Used By:** All repositories
+
+### backend/app/core/security.py
+- **Status:** 📋 To Create First
+- **Exports:** `get_password_hash`, `verify_password`, `create_access_token`, `create_refresh_token`, `decode_token`
+- **Depends On:** passlib, python-jose
+- **Used By:** AuthService, Dependencies
+
+### backend/app/core/dependencies.py
+- **Status:** 📋 To Create First
+- **Exports:** `get_current_user`, `get_current_active_user`, `get_current_superuser`
+- **Depends On:** security, database
+- **Used By:** All protected endpoints
+
+### backend/app/core/exceptions.py
+- **Status:** 📋 To Create First
+- **Exports:** `NotFoundError`, `ConflictError`, `UnauthorizedError`, `ValidationError`
+- **Used By:** All services
+
+### backend/app/models/base.py
+- **Status:** 📋 To Create First
+- **Exports:** `Base`, `TimestampMixin`
+- **Depends On:** sqlalchemy
+- **Used By:** All models
+
+### backend/app/repositories/base.py
+- **Status:** 📋 To Create First
+- **Exports:** `BaseRepository[T]`
+- **Methods:** `get()`, `get_all()`, `create()`, `update()`, `delete()`
+- **Depends On:** sqlalchemy
+- **Used By:** All repositories
+
+### backend/app/schemas/base.py
+- **Status:** 📋 To Create First
+- **Exports:** `ResponseBase`, `PaginatedResponse`
+- **Used By:** All endpoint responses
+
+---
+
+## Feature: Auth
+
+### Flutter Files
+
+#### mobile/lib/features/auth/domain/entities/auth_tokens.dart
+- **Status:** 📋 Pending
+- **Exports:** `AuthTokens`
+- **Fields:** `accessToken`, `refreshToken`, `expiresAt`
+
+#### mobile/lib/features/auth/domain/repositories/auth_repository.dart
+- **Status:** 📋 Pending
+- **Exports:** `AuthRepository` (abstract)
+- **Methods:** `login()`, `register()`, `logout()`, `refreshToken()`, `isAuthenticated()`
+
+#### mobile/lib/features/auth/data/repositories/auth_repository_impl.dart
+- **Status:** 📋 Pending
+- **Implements:** `AuthRepository`
+- **Depends On:** AuthRemoteDataSource, SecureStorage, Result
+
+#### mobile/lib/features/auth/data/datasources/auth_remote_datasource.dart
+- **Status:** 📋 Pending
+- **Exports:** `AuthRemoteDataSource`
+- **Depends On:** ApiClient
+
+#### mobile/lib/features/auth/presentation/providers/auth_provider.dart
+- **Status:** 📋 Pending
+- **Exports:** `authProvider`, `authStateProvider`, `isAuthenticatedProvider`
+
+#### mobile/lib/features/auth/presentation/screens/login_screen.dart
+- **Status:** 📋 Pending
+- **Depends On:** AuthProvider, Validators
+
+#### mobile/lib/features/auth/presentation/screens/register_screen.dart
+- **Status:** 📋 Pending
+- **Depends On:** AuthProvider, Validators
+
+### Backend Files
+
+#### backend/app/models/user.py
+- **Status:** 📋 Pending
+- **Exports:** `User`
+- **Fields:** `id`, `email`, `hashed_password`, `full_name`, `is_active`, `is_superuser`, `created_at`, `updated_at`
+
+#### backend/app/schemas/auth.py
+- **Status:** 📋 Pending
+- **Exports:** `LoginRequest`, `RegisterRequest`, `TokenResponse`, `RefreshRequest`
+
+#### backend/app/schemas/user.py
+- **Status:** 📋 Pending
+- **Exports:** `UserCreate`, `UserUpdate`, `UserResponse`
+
+#### backend/app/repositories/user.py
+- **Status:** 📋 Pending
+- **Exports:** `UserRepository`
+- **Methods:** `get_by_email()`
+
+#### backend/app/services/auth.py
+- **Status:** 📋 Pending
+- **Exports:** `AuthService`
+- **Methods:** `login()`, `register()`, `refresh_token()`
+
+#### backend/app/api/v1/endpoints/auth.py
+- **Status:** 📋 Pending
+- **Endpoints:** `POST /login`, `POST /register`, `POST /refresh`, `POST /logout`
+
+---
+
+## Feature: User
+
+### Flutter Files
+
+#### mobile/lib/features/user/domain/entities/user.dart
+- **Status:** 📋 Pending
+- **Exports:** `User`
+- **Fields:** `id`, `email`, `fullName`, `avatarUrl`, `createdAt`, `updatedAt`
+
+#### mobile/lib/features/user/domain/repositories/user_repository.dart
+- **Status:** 📋 Pending
+- **Exports:** `UserRepository` (abstract)
+- **Methods:** `getCurrentUser()`, `updateUser()`, `deleteAccount()`
+
+### Backend Files
+
+#### backend/app/services/user.py
+- **Status:** 📋 Pending
+- **Exports:** `UserService`
+
+#### backend/app/api/v1/endpoints/users.py
+- **Status:** 📋 Pending
+- **Endpoints:** `GET /me`, `PUT /me`, `DELETE /me`
+
+---
+
+# DEPENDENCY GRAPH
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      FLUTTER ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    PRESENTATION                          │   │
+│  │   Screens ──► Widgets ──► Providers                     │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                      DOMAIN                              │   │
+│  │   Entities ◄── Repositories (abstract)                  │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                       DATA                               │   │
+│  │   Models ──► DataSources ──► Repository Impl            │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                       CORE                               │   │
+│  │   ApiClient, Storage, Router, Theme, Utils              │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│                      BACKEND ARCHITECTURE                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    API LAYER                             │   │
+│  │   Endpoints (routes) ──► Request/Response Schemas       │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                   SERVICE LAYER                          │   │
+│  │   Business Logic, Validation, Orchestration             │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                 REPOSITORY LAYER                         │   │
+│  │   Data Access, Queries, CRUD Operations                 │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                   MODEL LAYER                            │   │
+│  │   SQLAlchemy Models, Database Tables                    │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# PATTERNS REFERENCE
+
+## Flutter Error Handling (COPY THIS)
+
+```dart
+Future<Result<T>> repositoryMethod() async {
+  try {
+    final data = await _remoteDataSource.fetchData();
+    return Result.success(data);
+  } on ServerException catch (e) {
+    return Result.failure(Failure.server(message: e.message, statusCode: e.statusCode));
+  } on NetworkException catch (e) {
+    return Result.failure(Failure.network(message: e.message));
+  } on UnauthorizedException {
+    return Result.failure(const Failure.unauthorized());
+  } catch (e) {
+    return Result.failure(Failure.server(message: e.toString()));
+  }
+}
+```
+
+## Flutter Provider (COPY THIS)
+
+```dart
+@riverpod
+class FeatureNotifier extends _$FeatureNotifier {
+  @override
+  Future<FeatureState> build() async {
+    return _loadInitialState();
+  }
+
+  Future<void> performAction() async {
+    state = const AsyncLoading();
+    final repository = ref.read(featureRepositoryProvider);
+    final result = await repository.doSomething();
+    
+    state = result.when(
+      success: (data) => AsyncData(data),
+      failure: (failure) => AsyncError(failure, StackTrace.current),
+    );
+  }
+}
+```
+
+## Python Service (COPY THIS)
+
+```python
+class FeatureService:
+    def __init__(self, session: AsyncSession):
+        self.repository = FeatureRepository(session)
+
+    async def get_item(self, item_id: int) -> Feature:
+        item = await self.repository.get(item_id)
+        if not item:
+            raise NotFoundError(f"Item {item_id} not found")
+        return item
+
+    async def create_item(self, data: FeatureCreate) -> Feature:
+        item = Feature(**data.model_dump())
+        return await self.repository.create(item)
+```
+
+## Python Endpoint (COPY THIS)
+
+```python
+@router.get("/{item_id}", response_model=FeatureResponse)
+async def get_item(
+    item_id: int,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+):
+    service = FeatureService(db)
+    try:
+        return await service.get_item(item_id)
+    except NotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+```
+
+---
+
+# GENERATION LOG
+
+| Date | File | Action | Verified |
+|------|------|--------|----------|
+| [DATE] | CODE_REGISTRY.md | Created | ✅ |
+
+---
+
+# STATUS LEGEND
+
+| Icon | Meaning |
+|------|---------|
+| 📋 | Planned / To Create |
+| 🔨 | In Progress |
+| ✅ | Implemented & Verified |
+| ⚠️ | Needs Update |
+| ❌ | Deprecated |
+
+---
+
+# UPDATE CHECKLIST
+
+After generating ANY file:
+
+```
+□ Add entry to FILE REGISTRY section
+□ Update status from 📋 to ✅
+□ List all exports
+□ List all dependencies
+□ Add to GENERATION LOG
+□ Run flutter analyze / python lint
+□ Verify imports resolve
+```
