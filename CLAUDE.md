@@ -1039,6 +1039,215 @@ pytest
 
 ---
 
+# SECTION 13: PROMPT-BASED DEVELOPMENT WORKFLOW
+
+## Overview
+
+This project uses a **task-driven development approach** where tasks are defined in `scripts/tasks.json` and prompts are generated using `generate_prompt.py`. This ensures consistent, dependency-aware code generation.
+
+## Key Files
+
+| File | Purpose |
+|------|---------|
+| `scripts/tasks.json` | Task definitions with dependencies, exports, status |
+| `generate_prompt.py` | Generates prompts for Claude from task definitions |
+| `CODE_REGISTRY.md` | Tracks all generated files and their status |
+| `CLAUDE.md` | Development standards (this file) |
+
+## Task Structure (tasks.json)
+
+Each task contains:
+
+```json
+{
+  "FE-016": {
+    "name": "App Card",
+    "description": "Card container widget",
+    "output_path": "web/lib/core/widgets/app_card.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "1",
+    "depends_on": ["FE-001", "FE-004", "FE-005"],
+    "exports": ["AppCard"],
+    "estimated_hours": 2,
+    "detailed_requirements": "Create card widget with shadow, border radius"
+  }
+}
+```
+
+## Prompt Generator Commands
+
+```bash
+# Get next pending task (respects dependency order)
+python generate_prompt.py --next
+
+# Generate prompt for specific task
+python generate_prompt.py FE-036
+
+# Print prompt to stdout (instead of file)
+python generate_prompt.py FE-036 --print
+
+# Save prompt to file
+python generate_prompt.py FE-036 --output prompts/
+
+# List all tasks
+python generate_prompt.py --list
+
+# List tasks by phase
+python generate_prompt.py --list --phase 2
+
+# Mark task as complete
+python generate_prompt.py --complete FE-036
+```
+
+## Development Workflow
+
+### Step 1: Get Next Task
+
+```bash
+python generate_prompt.py --next
+```
+
+Output:
+```
+📋 Next Task: FE-036 - Dashboard Screen
+   File: web/lib/features/projects/presentation/screens/dashboard_screen.dart
+   Depends on: FE-031, FE-033, FE-018
+
+Run: python generate_prompt.py FE-036
+```
+
+### Step 2: Generate Prompt
+
+```bash
+python generate_prompt.py FE-036 --print
+```
+
+This generates a complete prompt including:
+- Task details and requirements
+- Tech stack and code style guidelines
+- Dependency code (actual content of dependent files)
+- Completion requirements
+- Verification checklist
+
+### Step 3: Execute Task
+
+Provide the generated prompt to Claude, which will:
+1. Read CODE_REGISTRY.md
+2. Read dependency files
+3. Generate the code following patterns
+4. Update CODE_REGISTRY.md
+5. Output completion report
+
+### Step 4: Mark Complete
+
+```bash
+python generate_prompt.py --complete FE-036
+```
+
+### Step 5: Commit
+
+```bash
+git add .
+git commit -m "FE-036: Dashboard Screen"
+```
+
+## Task Naming Convention
+
+| Prefix | Platform | Example |
+|--------|----------|---------|
+| `BE-` | Backend (FastAPI) | `BE-001`, `BE-015` |
+| `FE-` | Frontend (Flutter) | `FE-001`, `FE-043` |
+
+## Task Status Values
+
+| Status | Meaning |
+|--------|---------|
+| `pending` | Not started |
+| `completed` | Done and verified |
+
+## Dependency Resolution
+
+The `--next` command automatically:
+1. Finds all pending tasks
+2. Checks if dependencies are completed
+3. Returns the first task with all dependencies met
+
+This ensures tasks are executed in the correct order.
+
+## Generated Prompt Contents
+
+When you run `generate_prompt.py <TASK_ID>`, the prompt includes:
+
+1. **Task Header** - ID, name, file path, dependencies
+2. **Tech Stack** - Platform-specific technologies
+3. **Code Style** - Naming conventions, patterns
+4. **Detailed Requirements** - What to implement
+5. **Dependency Code** - Actual source code of dependencies
+6. **Completion Requirements** - Registry update, commit message
+7. **Verification Checklist** - What to check after generation
+
+## Workflow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    DEVELOPMENT WORKFLOW                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │ tasks.json   │───►│ generate_    │───►│   Prompt     │  │
+│  │ (definitions)│    │ prompt.py    │    │   (markdown) │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│                                                 │           │
+│                                                 ▼           │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐  │
+│  │ CODE_        │◄───│   Claude     │◄───│   Human      │  │
+│  │ REGISTRY.md  │    │   (generate) │    │   (review)   │  │
+│  └──────────────┘    └──────────────┘    └──────────────┘  │
+│         │                   │                              │
+│         ▼                   ▼                              │
+│  ┌──────────────┐    ┌──────────────┐                     │
+│  │ --complete   │    │   Git        │                     │
+│  │ (mark done)  │    │   Commit     │                     │
+│  └──────────────┘    └──────────────┘                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Best Practices
+
+1. **Always use `--next`** to get the correct task order
+2. **Don't skip dependencies** - tasks depend on each other
+3. **Mark complete immediately** after successful generation
+4. **One task per commit** with format: `<TASK_ID>: <Task Name>`
+5. **Review generated code** before committing
+6. **Keep CODE_REGISTRY.md in sync** - Claude updates it automatically
+
+## Adding New Tasks
+
+To add a new task, edit `scripts/tasks.json`:
+
+```json
+{
+  "FE-044": {
+    "name": "New Feature Widget",
+    "description": "Description of the widget",
+    "output_path": "web/lib/features/xxx/presentation/widgets/new_widget.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "3",
+    "depends_on": ["FE-001", "FE-016"],
+    "exports": ["NewWidget"],
+    "estimated_hours": 3,
+    "detailed_requirements": "Detailed implementation requirements..."
+  }
+}
+```
+
+---
+
 # REMEMBER
 
 > "Read before write. Always."
