@@ -154,9 +154,11 @@
 - **Used By:** All protected endpoints
 
 ### backend/app/core/exceptions.py
-- **Status:** 📋 To Create First
-- **Exports:** `NotFoundError`, `ConflictError`, `UnauthorizedError`, `ValidationError`
-- **Used By:** All services
+- **Status:** ✅ Implemented
+- **Task:** BE-005
+- **Exports:** `AppException`, `NotFoundException`, `UnauthorizedException`, `ValidationException`, `handlers`
+- **Used By:** All services, FastAPI app
+- **Description:** Custom exception classes with FastAPI handlers for consistent error responses
 
 ### backend/app/models/base.py
 - **Status:** 📋 To Create First
@@ -426,6 +428,7 @@ async def get_item(
 | 2025-12-17 | backend/app/core/config.py | Created | ✅ |
 | 2025-12-17 | backend/app/core/security.py | Created | ✅ |
 | 2025-12-17 | backend/app/repositories/base.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/exceptions.py | Created | ✅ |
 
 ---
 
