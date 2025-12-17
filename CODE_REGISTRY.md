@@ -445,6 +445,8 @@ async def get_item(
 | 2025-12-17 | backend/app/api/v1/endpoints/auth.py | Created | ✅ |
 | 2025-12-17 | backend/app/api/v1/router.py | Created | ✅ |
 | 2025-12-17 | backend/app/main.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/env.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/versions/001_initial.py | Created | ✅ |
 
 ---
 
