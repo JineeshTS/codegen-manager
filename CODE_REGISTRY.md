@@ -517,3 +517,8 @@ After generating ANY file:
 | 2025-12-17 | web/lib/features/auth/presentation/screens/register_screen.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/router/app_router.dart | Created | ✅ |
 | 2025-12-17 | web/lib/main.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/domain/entities/project.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/domain/repositories/project_repository.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/data/repositories/project_repository_impl.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/providers/projects_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/providers/project_detail_provider.dart | Created | ✅ |

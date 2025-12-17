@@ -1040,5 +1040,326 @@
     "estimated_hours": 2,
     "completed_date": "2025-12-17T16:39:03.193082",
     "detailed_requirements": "Create main.dart with ProviderScope, MaterialApp.router"
+  },
+  "FE-028": {
+    "id": "FE-028",
+    "name": "Project Entity",
+    "description": "Project data model (Freezed)",
+    "output_path": "web/lib/features/projects/domain/entities/project.dart",
+    "status": "completed",
+    "platform": "web",
+    "layer": "entity",
+    "phase": "2",
+    "depends_on": [],
+    "exports": [
+      "Project",
+      "ProjectStatus"
+    ],
+    "estimated_hours": 2,
+    "completed_date": "2025-12-17T17:51:38.466356",
+    "detailed_requirements": "Create Project entity with freezed including status enum"
+  },
+  "FE-029": {
+    "id": "FE-029",
+    "name": "Project Repository Interface",
+    "description": "Abstract project repository",
+    "output_path": "web/lib/features/projects/domain/repositories/project_repository.dart",
+    "status": "completed",
+    "platform": "web",
+    "layer": "repository",
+    "phase": "2",
+    "depends_on": [
+      "FE-008",
+      "FE-028"
+    ],
+    "exports": [
+      "ProjectRepository"
+    ],
+    "estimated_hours": 2,
+    "completed_date": "2025-12-17T17:51:38.466356",
+    "detailed_requirements": "Create abstract project repository interface"
+  },
+  "FE-030": {
+    "id": "FE-030",
+    "name": "Project Repository Implementation",
+    "description": "Project API implementation",
+    "output_path": "web/lib/features/projects/data/repositories/project_repository_impl.dart",
+    "status": "completed",
+    "platform": "web",
+    "layer": "repository",
+    "phase": "2",
+    "depends_on": [
+      "FE-009",
+      "FE-029"
+    ],
+    "exports": [
+      "ProjectRepositoryImpl"
+    ],
+    "estimated_hours": 4,
+    "completed_date": "2025-12-17T17:51:38.466356",
+    "detailed_requirements": "Implement project repository with API calls"
+  },
+  "FE-031": {
+    "id": "FE-031",
+    "name": "Projects Provider",
+    "description": "Riverpod state for project list",
+    "output_path": "web/lib/features/projects/presentation/providers/projects_provider.dart",
+    "status": "completed",
+    "platform": "web",
+    "layer": "provider",
+    "phase": "2",
+    "depends_on": [
+      "FE-030"
+    ],
+    "exports": [
+      "projectsProvider",
+      "ProjectsNotifier"
+    ],
+    "estimated_hours": 4,
+    "completed_date": "2025-12-17T17:52:22.421586",
+    "detailed_requirements": "Create projects list provider with riverpod_annotation"
+  },
+  "FE-032": {
+    "id": "FE-032",
+    "name": "Project Detail Provider",
+    "description": "Single project state",
+    "output_path": "web/lib/features/projects/presentation/providers/project_detail_provider.dart",
+    "status": "completed",
+    "platform": "web",
+    "layer": "provider",
+    "phase": "2",
+    "depends_on": [
+      "FE-030"
+    ],
+    "exports": [
+      "projectDetailProvider"
+    ],
+    "estimated_hours": 3,
+    "completed_date": "2025-12-17T17:52:22.421586",
+    "detailed_requirements": "Create single project detail provider"
+  },
+  "FE-033": {
+    "id": "FE-033",
+    "name": "Project Card Widget",
+    "description": "Project list item card",
+    "output_path": "web/lib/features/projects/presentation/widgets/project_card.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-016",
+      "FE-028"
+    ],
+    "exports": [
+      "ProjectCard"
+    ],
+    "estimated_hours": 3,
+    "completed_date": null,
+    "detailed_requirements": "Create project card widget for list display"
+  },
+  "FE-034": {
+    "id": "FE-034",
+    "name": "Progress Bar Widget",
+    "description": "Horizontal progress indicator",
+    "output_path": "web/lib/core/widgets/progress_bar.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-001"
+    ],
+    "exports": [
+      "ProgressBar"
+    ],
+    "estimated_hours": 2,
+    "completed_date": null,
+    "detailed_requirements": "Create progress bar widget"
+  },
+  "FE-035": {
+    "id": "FE-035",
+    "name": "Platform Badge Widget",
+    "description": "Platform indicator (Mobile, Web, etc.)",
+    "output_path": "web/lib/features/projects/presentation/widgets/platform_badge.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-001",
+      "FE-006"
+    ],
+    "exports": [
+      "PlatformBadge"
+    ],
+    "estimated_hours": 2,
+    "completed_date": null,
+    "detailed_requirements": "Create platform badge widget"
+  },
+  "FE-036": {
+    "id": "FE-036",
+    "name": "Dashboard Screen",
+    "description": "Main dashboard with project list",
+    "output_path": "web/lib/features/projects/presentation/screens/dashboard_screen.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "screen",
+    "phase": "2",
+    "depends_on": [
+      "FE-031",
+      "FE-033",
+      "FE-018"
+    ],
+    "exports": [
+      "DashboardScreen"
+    ],
+    "estimated_hours": 5,
+    "completed_date": null,
+    "detailed_requirements": "Create dashboard screen with project list"
+  },
+  "FE-037": {
+    "id": "FE-037",
+    "name": "Create Project Screen",
+    "description": "New project form",
+    "output_path": "web/lib/features/projects/presentation/screens/create_project_screen.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "screen",
+    "phase": "2",
+    "depends_on": [
+      "FE-015",
+      "FE-012",
+      "FE-031"
+    ],
+    "exports": [
+      "CreateProjectScreen"
+    ],
+    "estimated_hours": 5,
+    "completed_date": null,
+    "detailed_requirements": "Create project creation form screen"
+  },
+  "FE-038": {
+    "id": "FE-038",
+    "name": "Platform Selector Widget",
+    "description": "Multi-select platform picker",
+    "output_path": "web/lib/features/projects/presentation/widgets/platform_selector.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-001",
+      "FE-006"
+    ],
+    "exports": [
+      "PlatformSelector"
+    ],
+    "estimated_hours": 3,
+    "completed_date": null,
+    "detailed_requirements": "Create multi-select platform picker widget"
+  },
+  "FE-039": {
+    "id": "FE-039",
+    "name": "Project Detail Screen",
+    "description": "Single project view with tabs",
+    "output_path": "web/lib/features/projects/presentation/screens/project_detail_screen.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "screen",
+    "phase": "2",
+    "depends_on": [
+      "FE-032",
+      "FE-016"
+    ],
+    "exports": [
+      "ProjectDetailScreen"
+    ],
+    "estimated_hours": 5,
+    "completed_date": null,
+    "detailed_requirements": "Create project detail screen with tabs"
+  },
+  "FE-040": {
+    "id": "FE-040",
+    "name": "Edit Project Screen",
+    "description": "Edit project form",
+    "output_path": "web/lib/features/projects/presentation/screens/edit_project_screen.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "screen",
+    "phase": "2",
+    "depends_on": [
+      "FE-015",
+      "FE-012",
+      "FE-032"
+    ],
+    "exports": [
+      "EditProjectScreen"
+    ],
+    "estimated_hours": 4,
+    "completed_date": null,
+    "detailed_requirements": "Create project edit form screen"
+  },
+  "FE-041": {
+    "id": "FE-041",
+    "name": "GitHub Connect Dialog",
+    "description": "Dialog to enter GitHub token",
+    "output_path": "web/lib/features/projects/presentation/widgets/github_connect_dialog.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-015",
+      "FE-012"
+    ],
+    "exports": [
+      "GitHubConnectDialog"
+    ],
+    "estimated_hours": 3,
+    "completed_date": null,
+    "detailed_requirements": "Create GitHub connection dialog"
+  },
+  "FE-042": {
+    "id": "FE-042",
+    "name": "Delete Confirmation Dialog",
+    "description": "Generic delete confirmation",
+    "output_path": "web/lib/core/widgets/delete_confirmation_dialog.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "widget",
+    "phase": "2",
+    "depends_on": [
+      "FE-012",
+      "FE-013"
+    ],
+    "exports": [
+      "DeleteConfirmationDialog"
+    ],
+    "estimated_hours": 2,
+    "completed_date": null,
+    "detailed_requirements": "Create generic delete confirmation dialog"
+  },
+  "FE-043": {
+    "id": "FE-043",
+    "name": "Update Router for Projects",
+    "description": "Add project routes",
+    "output_path": "web/lib/core/router/app_router.dart",
+    "status": "pending",
+    "platform": "web",
+    "layer": "core",
+    "phase": "2",
+    "depends_on": [
+      "FE-036",
+      "FE-037",
+      "FE-039",
+      "FE-040"
+    ],
+    "exports": [
+      "appRouter"
+    ],
+    "estimated_hours": 2,
+    "completed_date": null,
+    "detailed_requirements": "Update router with project routes"
   }
 }
