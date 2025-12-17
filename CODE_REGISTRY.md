@@ -509,3 +509,11 @@ After generating ANY file:
 | 2025-12-17 | web/lib/core/widgets/loading_indicator.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/widgets/empty_state.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/widgets/error_state.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/domain/entities/user.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/domain/repositories/auth_repository.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/data/repositories/auth_repository_impl.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/providers/auth_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/screens/login_screen.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/screens/register_screen.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/router/app_router.dart | Created | ✅ |
+| 2025-12-17 | web/lib/main.dart | Created | ✅ |
