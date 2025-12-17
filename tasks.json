@@ -1,0 +1,704 @@
+{
+  "BE-001": {
+    "name": "Database Configuration",
+    "description": "SQLAlchemy async engine, session factory, Base class",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/core/database.py",
+    "depends_on": [],
+    "exports": [
+      "engine",
+      "async_session",
+      "Base",
+      "get_db"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create the file `backend/app/core/database.py` with:\n\n1. **Async SQLAlchemy engine** using `create_async_engine`\n2. **Async session factory** using `async_sessionmaker`\n3. **Base class** for all models using `DeclarativeBase`\n4. **get_db dependency** that yields database sessions\n\n### Requirements:\n- Database URL should come from environment variable `DATABASE_URL`\n- Default to: `postgresql+asyncpg://postgres:postgres@localhost:5432/codegen_manager`\n- Include connection pool settings (pool_size=5, max_overflow=10)\n- Session should auto-commit=False, auto-flush=False\n- Include proper type hints\n- Add docstrings"
+  },
+  "BE-002": {
+    "name": "Settings Configuration",
+    "description": "Pydantic Settings for env variables",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/core/config.py",
+    "depends_on": [],
+    "exports": [
+      "Settings",
+      "settings"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Pydantic Settings class for environment variables.\n\n### Fields needed:\n- DATABASE_URL: str (default: postgresql+asyncpg://postgres:postgres@localhost:5432/codegen_manager)\n- SECRET_KEY: str (default: your-secret-key-change-in-production)\n- ALGORITHM: str (default: HS256)\n- ACCESS_TOKEN_EXPIRE_MINUTES: int (default: 30)\n- REFRESH_TOKEN_EXPIRE_DAYS: int (default: 7)\n- API_V1_PREFIX: str (default: /api/v1)\n- PROJECT_NAME: str (default: CodeGen Manager)\n- DEBUG: bool (default: False)\n\n### Requirements:\n- Use pydantic-settings (from pydantic_settings import BaseSettings)\n- Use model_config with env_file = \".env\"\n- Create a singleton instance called \"settings\"\n- Include type hints and docstrings"
+  },
+  "BE-003": {
+    "name": "Security Utilities",
+    "description": "Password hashing, JWT creation/verification",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/core/security.py",
+    "depends_on": [
+      "BE-002"
+    ],
+    "exports": [
+      "hash_password",
+      "verify_password",
+      "create_access_token",
+      "create_refresh_token",
+      "verify_token"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create security utilities for authentication.\n\n### Functions needed:\n\n1. **hash_password(password: str) -> str**\n   - Use bcrypt via passlib\n   - Return hashed password\n\n2. **verify_password(plain_password: str, hashed_password: str) -> bool**\n   - Verify password against hash\n   - Return True/False\n\n3. **create_access_token(data: dict, expires_delta: timedelta = None) -> str**\n   - Create JWT access token\n   - Use settings.SECRET_KEY and settings.ALGORITHM\n   - Default expiry from settings.ACCESS_TOKEN_EXPIRE_MINUTES\n\n4. **create_refresh_token(data: dict) -> str**\n   - Create JWT refresh token\n   - Expiry from settings.REFRESH_TOKEN_EXPIRE_DAYS\n\n5. **verify_token(token: str) -> dict | None**\n   - Decode and verify JWT\n   - Return payload or None if invalid\n\n### Requirements:\n- Import settings from BE-002\n- Use python-jose for JWT\n- Use passlib[bcrypt] for password hashing\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-004": {
+    "name": "Base Repository",
+    "description": "Generic CRUD repository base class",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "repository",
+    "output_path": "backend/app/repositories/base.py",
+    "depends_on": [
+      "BE-001"
+    ],
+    "exports": [
+      "BaseRepository"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create a generic base repository class for CRUD operations.\n\n### Class: BaseRepository[T]\n\nGeneric repository with type parameter T for the model.\n\n### Methods:\n\n1. **__init__(self, session: AsyncSession, model: Type[T])**\n   - Store session and model class\n\n2. **async get(self, id: UUID) -> T | None**\n   - Get single record by ID\n\n3. **async get_all(self, skip: int = 0, limit: int = 100) -> list[T]**\n   - Get all records with pagination\n\n4. **async create(self, obj_in: dict) -> T**\n   - Create new record\n   - Return created object\n\n5. **async update(self, id: UUID, obj_in: dict) -> T | None**\n   - Update existing record\n   - Return updated object or None\n\n6. **async delete(self, id: UUID) -> bool**\n   - Delete record by ID\n   - Return True if deleted, False if not found\n\n### Requirements:\n- Use AsyncSession from BE-001\n- Use Generic[T] from typing\n- All methods should be async\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-005": {
+    "name": "Exception Handlers",
+    "description": "Custom exceptions and FastAPI exception handlers",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/core/exceptions.py",
+    "depends_on": [],
+    "exports": [
+      "AppException",
+      "NotFoundException",
+      "UnauthorizedException",
+      "ForbiddenException",
+      "BadRequestException",
+      "ConflictException",
+      "register_exception_handlers"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create custom exceptions and FastAPI exception handlers.\n\n### Base Exception:\n\n```python\nclass AppException(Exception):\n    def __init__(self, status_code: int, detail: str, headers: dict = None):\n        self.status_code = status_code\n        self.detail = detail\n        self.headers = headers\n```\n\n### Specific Exceptions:\n\n1. **NotFoundException** - 404, resource not found\n2. **UnauthorizedException** - 401, authentication required\n3. **ForbiddenException** - 403, permission denied\n4. **BadRequestException** - 400, invalid request\n5. **ConflictException** - 409, resource conflict\n\n### Exception Handler:\n\n```python\ndef register_exception_handlers(app: FastAPI) -> None:\n    # Register handlers for all custom exceptions\n    # Return JSON response with status_code and detail\n```\n\n### Requirements:\n- All exceptions inherit from AppException\n- Handler returns JSON: {\"detail\": \"error message\"}\n- Include type hints and docstrings"
+  },
+  "BE-006": {
+    "name": "User Model",
+    "description": "SQLAlchemy User model",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "model",
+    "output_path": "backend/app/models/user.py",
+    "depends_on": [
+      "BE-001"
+    ],
+    "exports": [
+      "User"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create SQLAlchemy User model.\n\n### Fields:\n\n| Field | Type | Constraints |\n|-------|------|-------------|\n| id | UUID | Primary key, default uuid4 |\n| email | String(255) | Unique, not null, indexed |\n| hashed_password | String(255) | Not null |\n| full_name | String(100) | Not null |\n| is_active | Boolean | Default True |\n| created_at | DateTime | Default utcnow |\n| updated_at | DateTime | Default utcnow, onupdate utcnow |\n\n### Requirements:\n- Inherit from Base (BE-001)\n- Table name: \"users\"\n- Use mapped_column for all fields\n- Include __repr__ method\n- Include type hints"
+  },
+  "BE-007": {
+    "name": "Auth Schemas",
+    "description": "Pydantic schemas for auth requests/responses",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "schema",
+    "output_path": "backend/app/schemas/auth.py",
+    "depends_on": [],
+    "exports": [
+      "RegisterRequest",
+      "LoginRequest",
+      "TokenResponse",
+      "UserResponse",
+      "UserUpdate"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Pydantic schemas for authentication.\n\n### Schemas:\n\n1. **RegisterRequest**\n   - email: EmailStr\n   - password: str (min_length=8)\n   - full_name: str (min_length=1, max_length=100)\n\n2. **LoginRequest**\n   - email: EmailStr\n   - password: str\n\n3. **TokenResponse**\n   - access_token: str\n   - refresh_token: str\n   - token_type: str = \"bearer\"\n\n4. **UserResponse**\n   - id: UUID\n   - email: str\n   - full_name: str\n   - is_active: bool\n   - created_at: datetime\n\n5. **UserUpdate**\n   - full_name: str | None = None\n   - current_password: str | None = None\n   - new_password: str | None = None\n\n### Requirements:\n- Use Pydantic v2 syntax\n- Use model_config with from_attributes=True for response schemas\n- Include field validators where needed\n- Include type hints and docstrings"
+  },
+  "BE-008": {
+    "name": "User Repository",
+    "description": "User CRUD operations",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "repository",
+    "output_path": "backend/app/repositories/user.py",
+    "depends_on": [
+      "BE-004",
+      "BE-006"
+    ],
+    "exports": [
+      "UserRepository"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create User repository extending BaseRepository.\n\n### Class: UserRepository(BaseRepository[User])\n\n### Additional Methods:\n\n1. **async get_by_email(self, email: str) -> User | None**\n   - Find user by email address\n\n2. **async create_user(self, email: str, hashed_password: str, full_name: str) -> User**\n   - Create new user with provided data\n   - Return created user\n\n3. **async update_password(self, user_id: UUID, hashed_password: str) -> User | None**\n   - Update user's password\n   - Return updated user\n\n4. **async deactivate(self, user_id: UUID) -> User | None**\n   - Set is_active to False\n   - Return updated user\n\n### Requirements:\n- Inherit from BaseRepository[User]\n- Import User model from BE-006\n- Use select() for queries\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-009": {
+    "name": "Auth Service",
+    "description": "Authentication business logic",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "service",
+    "output_path": "backend/app/services/auth.py",
+    "depends_on": [
+      "BE-003",
+      "BE-008"
+    ],
+    "exports": [
+      "AuthService"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create authentication service with business logic.\n\n### Class: AuthService\n\n### Methods:\n\n1. **__init__(self, user_repo: UserRepository)**\n   - Store repository instance\n\n2. **async register(self, email: str, password: str, full_name: str) -> User**\n   - Check if email already exists (raise ConflictException)\n   - Hash password\n   - Create user\n   - Return created user\n\n3. **async login(self, email: str, password: str) -> tuple[User, str, str]**\n   - Find user by email (raise UnauthorizedException if not found)\n   - Verify password (raise UnauthorizedException if wrong)\n   - Check is_active (raise ForbiddenException if inactive)\n   - Create access and refresh tokens\n   - Return (user, access_token, refresh_token)\n\n4. **async refresh_token(self, refresh_token: str) -> tuple[str, str]**\n   - Verify refresh token\n   - Get user from token payload\n   - Create new access and refresh tokens\n   - Return (access_token, refresh_token)\n\n5. **async get_current_user(self, token: str) -> User**\n   - Verify token\n   - Get user from payload\n   - Return user (raise UnauthorizedException if invalid)\n\n6. **async update_profile(self, user_id: UUID, data: dict) -> User**\n   - Update user profile\n   - If password change, verify current password first\n   - Return updated user\n\n### Requirements:\n- Use security utilities from BE-003\n- Use UserRepository from BE-008\n- Use exceptions from BE-005\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-010": {
+    "name": "Auth Dependencies",
+    "description": "FastAPI dependencies for auth",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/api/dependencies.py",
+    "depends_on": [
+      "BE-009"
+    ],
+    "exports": [
+      "get_current_user",
+      "get_current_active_user"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create FastAPI dependencies for authentication.\n\n### Dependencies:\n\n1. **async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User**\n   - Extract token from Authorization header\n   - Verify token and get user\n   - Return user or raise UnauthorizedException\n\n2. **async def get_current_active_user(current_user: User = Depends(get_current_user)) -> User**\n   - Check if user is_active\n   - Return user or raise ForbiddenException\n\n### Also create:\n\n```python\noauth2_scheme = OAuth2PasswordBearer(tokenUrl=\"/api/v1/auth/login\")\n```\n\n### Requirements:\n- Use OAuth2PasswordBearer from fastapi.security\n- Use AuthService from BE-009\n- Use get_db from BE-001\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-011": {
+    "name": "Auth Endpoints",
+    "description": "Auth API routes",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "endpoint",
+    "output_path": "backend/app/api/v1/endpoints/auth.py",
+    "depends_on": [
+      "BE-009",
+      "BE-010",
+      "BE-007"
+    ],
+    "exports": [
+      "router"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create auth API endpoints.\n\n### Endpoints:\n\n1. **POST /register**\n   - Request: RegisterRequest\n   - Response: UserResponse\n   - Creates new user\n\n2. **POST /login**\n   - Request: LoginRequest\n   - Response: TokenResponse\n   - Returns access and refresh tokens\n\n3. **POST /refresh**\n   - Request: {refresh_token: str}\n   - Response: TokenResponse\n   - Returns new tokens\n\n4. **POST /logout**\n   - Requires: Authorization header\n   - Response: {success: true}\n   - (For now, just return success - token blacklisting can be added later)\n\n5. **GET /me**\n   - Requires: Authorization header\n   - Response: UserResponse\n   - Returns current user\n\n6. **PUT /me**\n   - Requires: Authorization header\n   - Request: UserUpdate\n   - Response: UserResponse\n   - Updates current user profile\n\n### Requirements:\n- Use APIRouter with prefix=\"\" and tags=[\"auth\"]\n- Use schemas from BE-007\n- Use dependencies from BE-010\n- Use AuthService from BE-009\n- Include proper error handling\n- Include type hints and docstrings"
+  },
+  "BE-012": {
+    "name": "API Router Setup",
+    "description": "Main API router combining all endpoints",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/api/v1/router.py",
+    "depends_on": [
+      "BE-011"
+    ],
+    "exports": [
+      "api_router"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create main API router that combines all endpoint routers.\n\n### Code:\n\n```python\nfrom fastapi import APIRouter\nfrom app.api.v1.endpoints import auth\n\napi_router = APIRouter()\n\napi_router.include_router(auth.router, prefix=\"/auth\", tags=[\"auth\"])\n\n# Add more routers as they are created:\n# api_router.include_router(projects.router, prefix=\"/projects\", tags=[\"projects\"])\n```\n\n### Requirements:\n- Import auth router from BE-011\n- Include with prefix /auth\n- Add placeholder comments for future routers\n- Include type hints"
+  },
+  "BE-013": {
+    "name": "App Factory",
+    "description": "FastAPI app creation with middleware, CORS, routers",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/app/main.py",
+    "depends_on": [
+      "BE-012",
+      "BE-005"
+    ],
+    "exports": [
+      "app"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create FastAPI application factory.\n\n### Requirements:\n\n1. **Create FastAPI app** with:\n   - title from settings.PROJECT_NAME\n   - openapi_url = f\"{settings.API_V1_PREFIX}/openapi.json\"\n   - docs_url = f\"{settings.API_V1_PREFIX}/docs\"\n\n2. **Add CORS middleware** with:\n   - allow_origins = [\"*\"] (configure properly in production)\n   - allow_credentials = True\n   - allow_methods = [\"*\"]\n   - allow_headers = [\"*\"]\n\n3. **Register exception handlers** from BE-005\n\n4. **Include API router** from BE-012 with prefix from settings.API_V1_PREFIX\n\n5. **Add health check endpoint**:\n   - GET / returns {\"status\": \"healthy\", \"project\": settings.PROJECT_NAME}\n\n### Code structure:\n\n```python\nfrom fastapi import FastAPI\nfrom fastapi.middleware.cors import CORSMiddleware\n\nfrom app.core.config import settings\nfrom app.core.exceptions import register_exception_handlers\nfrom app.api.v1.router import api_router\n\napp = FastAPI(\n    title=settings.PROJECT_NAME,\n    ...\n)\n\n# Add middleware\n# Register handlers\n# Include routers\n```\n\n### Requirements:\n- Import settings from BE-002\n- Import api_router from BE-012\n- Import register_exception_handlers from BE-005\n- Include proper configuration\n- Include type hints and docstrings"
+  },
+  "BE-014": {
+    "name": "Alembic Setup",
+    "description": "Database migration configuration",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "core",
+    "output_path": "backend/alembic.ini",
+    "depends_on": [
+      "BE-001",
+      "BE-006"
+    ],
+    "exports": [],
+    "status": "pending",
+    "detailed_requirements": "Create Alembic configuration for database migrations.\n\n### Files to create:\n\n1. **backend/alembic.ini** - Main alembic config\n2. **backend/alembic/env.py** - Migration environment\n3. **backend/alembic/script.py.mako** - Migration template\n\n### alembic.ini:\n```ini\n[alembic]\nscript_location = alembic\nprepend_sys_path = .\nsqlalchemy.url = driver://user:pass@localhost/dbname\n\n[logging]\n...\n```\n\n### alembic/env.py:\n- Import Base from app.core.database\n- Import all models\n- Configure async support\n- Use DATABASE_URL from settings\n\n### Requirements:\n- Configure for async PostgreSQL\n- Import Base from BE-001\n- Import User model from BE-006 (to register with Base)\n- Use settings.DATABASE_URL\n- Include proper async migration support"
+  },
+  "BE-015": {
+    "name": "Initial Migration",
+    "description": "Create users table",
+    "phase": 1,
+    "platform": "backend",
+    "layer": "migration",
+    "output_path": "backend/alembic/versions/001_initial.py",
+    "depends_on": [
+      "BE-014"
+    ],
+    "exports": [],
+    "status": "pending",
+    "detailed_requirements": "Create initial database migration for users table.\n\n### Migration:\n\n```python\n\"\"\"Initial migration - create users table\n\nRevision ID: 001\nCreate Date: 2024-01-01\n\"\"\"\nfrom alembic import op\nimport sqlalchemy as sa\nfrom sqlalchemy.dialects import postgresql\n\nrevision = '001'\ndown_revision = None\nbranch_labels = None\ndepends_on = None\n\ndef upgrade() -> None:\n    op.create_table(\n        'users',\n        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),\n        sa.Column('email', sa.String(255), unique=True, nullable=False, index=True),\n        sa.Column('hashed_password', sa.String(255), nullable=False),\n        sa.Column('full_name', sa.String(100), nullable=False),\n        sa.Column('is_active', sa.Boolean(), default=True),\n        sa.Column('created_at', sa.DateTime(), server_default=sa.func.now()),\n        sa.Column('updated_at', sa.DateTime(), server_default=sa.func.now(), onupdate=sa.func.now()),\n    )\n\ndef downgrade() -> None:\n    op.drop_table('users')\n```\n\n### Requirements:\n- Create users table matching User model from BE-006\n- Use PostgreSQL UUID type\n- Include proper indexes\n- Include both upgrade and downgrade functions"
+  },
+  "FE-001": {
+    "name": "App Colors",
+    "description": "All color constants per DESIGN_SYSTEM.md",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_colors.dart",
+    "depends_on": [],
+    "exports": [
+      "AppColors"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create all color constants exactly as defined in DESIGN_SYSTEM.md.\n\n### Class: AppColors\n\nAbstract class with static color constants.\n\n### Colors to include:\n\n**Brand Colors:**\n- primary = Color(0xFF2563EB)\n- primaryLight = Color(0xFF3B82F6)\n- primaryDark = Color(0xFF1D4ED8)\n- secondary = Color(0xFF7C3AED)\n- secondaryLight = Color(0xFF8B5CF6)\n- secondaryDark = Color(0xFF6D28D9)\n\n**Neutral Colors:**\n- backgroundPrimary = Color(0xFFFFFFFF)\n- backgroundSecondary = Color(0xFFF8FAFC)\n- backgroundTertiary = Color(0xFFF1F5F9)\n- textPrimary = Color(0xFF0F172A)\n- textSecondary = Color(0xFF475569)\n- textTertiary = Color(0xFF94A3B8)\n- textInverse = Color(0xFFFFFFFF)\n- borderLight = Color(0xFFE2E8F0)\n- borderMedium = Color(0xFFCBD5E1)\n- borderDark = Color(0xFF94A3B8)\n\n**Semantic Colors:**\n- success = Color(0xFF22C55E)\n- successLight = Color(0xFFDCFCE7)\n- error = Color(0xFFEF4444)\n- errorLight = Color(0xFFFEE2E2)\n- warning = Color(0xFFF59E0B)\n- warningLight = Color(0xFFFEF3C7)\n- info = Color(0xFF3B82F6)\n- infoLight = Color(0xFFDBEAFE)\n\n### Requirements:\n- Use abstract class with private constructor\n- All colors must be static const\n- Match DESIGN_SYSTEM.md exactly\n- Include documentation comments"
+  },
+  "FE-002": {
+    "name": "App Typography",
+    "description": "All text styles per DESIGN_SYSTEM.md",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_typography.dart",
+    "depends_on": [
+      "FE-001"
+    ],
+    "exports": [
+      "AppTextStyles"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create all text styles exactly as defined in DESIGN_SYSTEM.md.\n\n### Class: AppTextStyles\n\nAbstract class with static TextStyle getters.\n\n### Text Styles to include:\n\n**Display:**\n- displayLarge: 32px, bold, textPrimary\n- displayMedium: 28px, bold, textPrimary\n\n**Headings:**\n- headingLarge: 24px, semiBold, textPrimary\n- headingMedium: 20px, semiBold, textPrimary\n- headingSmall: 18px, semiBold, textPrimary\n\n**Body:**\n- bodyLarge: 16px, regular, textPrimary\n- bodyMedium: 14px, regular, textSecondary\n- bodySmall: 12px, regular, textTertiary\n\n**UI Elements:**\n- buttonText: 16px, semiBold, textInverse\n- inputText: 16px, regular, textPrimary\n- inputLabel: 14px, medium, textSecondary\n- inputHint: 16px, regular, textTertiary\n\n### Requirements:\n- Use AppColors from FE-001\n- Font family: 'Inter'\n- All styles as static getters (not const - they reference AppColors)\n- Include proper line heights\n- Match DESIGN_SYSTEM.md exactly"
+  },
+  "FE-003": {
+    "name": "App Spacing",
+    "description": "All spacing constants",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_spacing.dart",
+    "depends_on": [],
+    "exports": [
+      "AppSpacing"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create spacing constants per DESIGN_SYSTEM.md.\n\n### Class: AppSpacing\n\nAbstract class with static spacing constants.\n\n### Spacing values:\n- spacing2 = 2.0\n- spacing4 = 4.0\n- spacing8 = 8.0\n- spacing12 = 12.0\n- spacing16 = 16.0\n- spacing20 = 20.0\n- spacing24 = 24.0\n- spacing32 = 32.0\n- spacing40 = 40.0\n- spacing48 = 48.0\n- spacing64 = 64.0\n\n### Helper EdgeInsets:\n- paddingAllSmall = EdgeInsets.all(spacing8)\n- paddingAllMedium = EdgeInsets.all(spacing16)\n- paddingAllLarge = EdgeInsets.all(spacing24)\n- paddingHorizontal = EdgeInsets.symmetric(horizontal: spacing16)\n- paddingVertical = EdgeInsets.symmetric(vertical: spacing24)\n- screenPadding = EdgeInsets.symmetric(horizontal: spacing16, vertical: spacing24)\n\n### Requirements:\n- All values must be static const\n- All spacing must be multiples of 4\n- Include helper EdgeInsets for common patterns"
+  },
+  "FE-004": {
+    "name": "App Radius",
+    "description": "Border radius constants",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_radius.dart",
+    "depends_on": [],
+    "exports": [
+      "AppRadius"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create border radius constants per DESIGN_SYSTEM.md.\n\n### Class: AppRadius\n\nAbstract class with static radius constants.\n\n### Radius values:\n- small = 4.0 (tags, badges)\n- medium = 8.0 (buttons, inputs)\n- large = 12.0 (cards)\n- xLarge = 16.0 (modals, bottom sheets)\n- round = 999.0 (circular, avatars, pills)\n\n### Helper BorderRadius:\n- borderSmall = BorderRadius.circular(small)\n- borderMedium = BorderRadius.circular(medium)\n- borderLarge = BorderRadius.circular(large)\n- borderXLarge = BorderRadius.circular(xLarge)\n- borderRound = BorderRadius.circular(round)\n- borderTopLarge = BorderRadius.only(topLeft: Radius.circular(large), topRight: Radius.circular(large))\n\n### Requirements:\n- All values must be static const\n- Include both double values and BorderRadius helpers"
+  },
+  "FE-005": {
+    "name": "App Shadows",
+    "description": "Shadow styles",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_shadows.dart",
+    "depends_on": [],
+    "exports": [
+      "AppShadows"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create shadow styles per DESIGN_SYSTEM.md.\n\n### Class: AppShadows\n\nAbstract class with static shadow lists.\n\n### Shadows:\n\n```dart\nstatic List<BoxShadow> get small => [\n  BoxShadow(\n    color: Color(0x0A000000),\n    blurRadius: 4,\n    offset: Offset(0, 2),\n  ),\n];\n\nstatic List<BoxShadow> get medium => [\n  BoxShadow(\n    color: Color(0x0F000000),\n    blurRadius: 8,\n    offset: Offset(0, 4),\n  ),\n];\n\nstatic List<BoxShadow> get large => [\n  BoxShadow(\n    color: Color(0x14000000),\n    blurRadius: 16,\n    offset: Offset(0, 8),\n  ),\n];\n```\n\n### Requirements:\n- Use getters (not const) for List<BoxShadow>\n- Match DESIGN_SYSTEM.md exactly"
+  },
+  "FE-006": {
+    "name": "App Icons",
+    "description": "Icon mappings using lucide_icons",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_icons.dart",
+    "depends_on": [],
+    "exports": [
+      "AppIcons"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create icon mappings per DESIGN_SYSTEM.md.\n\n### Class: AppIcons\n\nAbstract class with static IconData constants.\n\n### Icon sizes:\n- sizeSmall = 16.0\n- sizeMedium = 20.0\n- sizeLarge = 24.0\n- sizeXLarge = 32.0\n\n### Navigation icons:\n- home = LucideIcons.home\n- back = LucideIcons.arrowLeft\n- close = LucideIcons.x\n- menu = LucideIcons.menu\n- settings = LucideIcons.settings\n\n### Action icons:\n- add = LucideIcons.plus\n- edit = LucideIcons.pencil\n- delete = LucideIcons.trash2\n- search = LucideIcons.search\n- filter = LucideIcons.filter\n- share = LucideIcons.share2\n\n### Status icons:\n- success = LucideIcons.checkCircle\n- error = LucideIcons.alertCircle\n- warning = LucideIcons.alertTriangle\n- info = LucideIcons.info\n\n### User icons:\n- user = LucideIcons.user\n- login = LucideIcons.logIn\n- logout = LucideIcons.logOut\n\n### Form icons:\n- email = LucideIcons.mail\n- password = LucideIcons.lock\n- eyeOpen = LucideIcons.eye\n- eyeClosed = LucideIcons.eyeOff\n\n### Requirements:\n- Import from lucide_icons package\n- All icons must be static const\n- Include size constants"
+  },
+  "FE-007": {
+    "name": "App Theme",
+    "description": "ThemeData combining all design tokens",
+    "phase": 1,
+    "platform": "web",
+    "layer": "theme",
+    "output_path": "web/lib/core/theme/app_theme.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-003",
+      "FE-004"
+    ],
+    "exports": [
+      "AppTheme"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Flutter ThemeData combining all design tokens.\n\n### Class: AppTheme\n\nAbstract class with static ThemeData getters.\n\n### Methods:\n\n```dart\nstatic ThemeData get light => ThemeData(\n  useMaterial3: true,\n  fontFamily: 'Inter',\n  colorScheme: ColorScheme.light(\n    primary: AppColors.primary,\n    secondary: AppColors.secondary,\n    surface: AppColors.backgroundPrimary,\n    background: AppColors.backgroundPrimary,\n    error: AppColors.error,\n  ),\n  scaffoldBackgroundColor: AppColors.backgroundPrimary,\n  appBarTheme: AppBarTheme(...),\n  elevatedButtonTheme: ElevatedButtonThemeData(...),\n  outlinedButtonTheme: OutlinedButtonThemeData(...),\n  textButtonTheme: TextButtonThemeData(...),\n  inputDecorationTheme: InputDecorationTheme(...),\n  cardTheme: CardTheme(...),\n);\n```\n\n### Requirements:\n- Import all theme files (FE-001 through FE-005)\n- Create complete ThemeData for light mode\n- Configure all component themes consistently\n- Use AppColors, AppTextStyles, AppRadius throughout"
+  },
+  "FE-008": {
+    "name": "Result Type",
+    "description": "Result<T> and Failure types for error handling",
+    "phase": 1,
+    "platform": "web",
+    "layer": "core",
+    "output_path": "web/lib/core/types/result.dart",
+    "depends_on": [],
+    "exports": [
+      "Result",
+      "Failure",
+      "ServerFailure",
+      "NetworkFailure",
+      "CacheFailure",
+      "ValidationFailure"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Result type for functional error handling.\n\n### Sealed Class: Result<T>\n\n```dart\nsealed class Result<T> {\n  const Result();\n}\n\nfinal class Success<T> extends Result<T> {\n  final T data;\n  const Success(this.data);\n}\n\nfinal class Failure<T> extends Result<T> {\n  final AppFailure failure;\n  const Failure(this.failure);\n}\n```\n\n### Extension methods:\n\n```dart\nextension ResultExtension<T> on Result<T> {\n  bool get isSuccess => this is Success<T>;\n  bool get isFailure => this is Failure<T>;\n  \n  T? get data => switch (this) {\n    Success(data: final d) => d,\n    Failure() => null,\n  };\n  \n  AppFailure? get failure => switch (this) {\n    Success() => null,\n    Failure(failure: final f) => f,\n  };\n  \n  R when<R>({\n    required R Function(T data) success,\n    required R Function(AppFailure failure) failure,\n  }) => switch (this) {\n    Success(data: final d) => success(d),\n    Failure(failure: final f) => failure(f),\n  };\n}\n```\n\n### Failure types:\n\n```dart\nsealed class AppFailure {\n  final String message;\n  const AppFailure(this.message);\n}\n\nclass ServerFailure extends AppFailure {\n  final int? statusCode;\n  const ServerFailure(super.message, {this.statusCode});\n}\n\nclass NetworkFailure extends AppFailure {\n  const NetworkFailure([super.message = 'No internet connection']);\n}\n\nclass CacheFailure extends AppFailure {\n  const CacheFailure([super.message = 'Cache error']);\n}\n\nclass ValidationFailure extends AppFailure {\n  final Map<String, String>? errors;\n  const ValidationFailure(super.message, {this.errors});\n}\n```\n\n### Requirements:\n- Use Dart 3 sealed classes\n- Include all extension methods\n- Include all failure types"
+  },
+  "FE-009": {
+    "name": "API Client",
+    "description": "Dio HTTP client with interceptors",
+    "phase": 1,
+    "platform": "web",
+    "layer": "network",
+    "output_path": "web/lib/core/network/api_client.dart",
+    "depends_on": [
+      "FE-008"
+    ],
+    "exports": [
+      "ApiClient"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Dio HTTP client with interceptors.\n\n### Class: ApiClient\n\n```dart\nclass ApiClient {\n  final Dio _dio;\n  final SecureStorage _storage;\n  \n  ApiClient({required SecureStorage storage}) : _storage = storage {\n    _dio = Dio(BaseOptions(\n      baseUrl: EnvConfig.apiBaseUrl,\n      connectTimeout: Duration(seconds: 30),\n      receiveTimeout: Duration(seconds: 30),\n      headers: {'Content-Type': 'application/json'},\n    ));\n    \n    _dio.interceptors.add(_authInterceptor());\n    _dio.interceptors.add(_errorInterceptor());\n  }\n}\n```\n\n### Methods:\n\n1. **Future<Result<T>> get<T>(String path, {Map<String, dynamic>? queryParams, T Function(dynamic)? fromJson})**\n\n2. **Future<Result<T>> post<T>(String path, {dynamic data, T Function(dynamic)? fromJson})**\n\n3. **Future<Result<T>> put<T>(String path, {dynamic data, T Function(dynamic)? fromJson})**\n\n4. **Future<Result<T>> delete<T>(String path)**\n\n### Interceptors:\n\n1. **Auth Interceptor** - Add Authorization header from stored token\n2. **Error Interceptor** - Convert DioException to AppFailure\n\n### Requirements:\n- Use Result type from FE-008\n- Handle all HTTP errors\n- Add auth token automatically\n- Support response transformation"
+  },
+  "FE-010": {
+    "name": "Secure Storage",
+    "description": "Token storage",
+    "phase": 1,
+    "platform": "web",
+    "layer": "storage",
+    "output_path": "web/lib/core/storage/secure_storage.dart",
+    "depends_on": [],
+    "exports": [
+      "SecureStorage"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create secure storage for tokens.\n\n### Class: SecureStorage\n\n```dart\nclass SecureStorage {\n  static const _accessTokenKey = 'access_token';\n  static const _refreshTokenKey = 'refresh_token';\n  static const _userKey = 'user_data';\n  \n  final FlutterSecureStorage _storage;\n  \n  SecureStorage() : _storage = const FlutterSecureStorage(\n    webOptions: WebOptions(\n      dbName: 'codegen_manager',\n      publicKey: 'codegen_manager_key',\n    ),\n  );\n}\n```\n\n### Methods:\n\n1. **Future<void> saveAccessToken(String token)**\n2. **Future<String?> getAccessToken()**\n3. **Future<void> saveRefreshToken(String token)**\n4. **Future<String?> getRefreshToken()**\n5. **Future<void> saveUser(Map<String, dynamic> user)**\n6. **Future<Map<String, dynamic>?> getUser()**\n7. **Future<void> clearAll()**\n8. **Future<bool> hasTokens()**\n\n### Requirements:\n- Use flutter_secure_storage package\n- Configure for web\n- Handle null cases\n- JSON encode/decode for user data"
+  },
+  "FE-011": {
+    "name": "Environment Config",
+    "description": "Environment variables",
+    "phase": 1,
+    "platform": "web",
+    "layer": "config",
+    "output_path": "web/lib/core/config/env_config.dart",
+    "depends_on": [],
+    "exports": [
+      "EnvConfig"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create environment configuration.\n\n### Class: EnvConfig\n\n```dart\nabstract class EnvConfig {\n  static const String apiBaseUrl = String.fromEnvironment(\n    'API_BASE_URL',\n    defaultValue: 'http://localhost:8000/api/v1',\n  );\n  \n  static const String environment = String.fromEnvironment(\n    'ENVIRONMENT',\n    defaultValue: 'development',\n  );\n  \n  static bool get isDevelopment => environment == 'development';\n  static bool get isProduction => environment == 'production';\n  static bool get isStaging => environment == 'staging';\n}\n```\n\n### Requirements:\n- Use String.fromEnvironment for compile-time env vars\n- Include sensible defaults for development\n- Include helper getters for environment checks"
+  },
+  "FE-012": {
+    "name": "Primary Button",
+    "description": "Primary action button per DESIGN_SYSTEM.md",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/primary_button.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-004"
+    ],
+    "exports": [
+      "PrimaryButton"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create primary button exactly as defined in DESIGN_SYSTEM.md.\n\n### Widget: PrimaryButton\n\n```dart\nclass PrimaryButton extends StatelessWidget {\n  final String text;\n  final VoidCallback? onPressed;\n  final bool isLoading;\n  final bool isFullWidth;\n  final IconData? icon;\n\n  const PrimaryButton({\n    super.key,\n    required this.text,\n    this.onPressed,\n    this.isLoading = false,\n    this.isFullWidth = true,\n    this.icon,\n  });\n}\n```\n\n### Specifications:\n- Height: 48\n- Background: AppColors.primary\n- Text: AppTextStyles.buttonText\n- Border radius: AppRadius.medium (8)\n- Disabled: primaryLight with 0.5 opacity\n- Loading: Show CircularProgressIndicator\n- Icon: Show before text with spacing8\n\n### Requirements:\n- Use ONLY values from design system\n- Match DESIGN_SYSTEM.md exactly\n- Handle loading state\n- Handle disabled state\n- Support optional icon"
+  },
+  "FE-013": {
+    "name": "Secondary Button",
+    "description": "Secondary action button",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/secondary_button.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-004"
+    ],
+    "exports": [
+      "SecondaryButton"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create secondary button per DESIGN_SYSTEM.md.\n\n### Widget: SecondaryButton\n\n```dart\nclass SecondaryButton extends StatelessWidget {\n  final String text;\n  final VoidCallback? onPressed;\n  final bool isFullWidth;\n  final IconData? icon;\n\n  const SecondaryButton({\n    super.key,\n    required this.text,\n    this.onPressed,\n    this.isFullWidth = true,\n    this.icon,\n  });\n}\n```\n\n### Specifications:\n- Height: 48\n- Background: transparent\n- Border: 1px AppColors.primary\n- Text: AppTextStyles.buttonText with AppColors.primary\n- Border radius: AppRadius.medium (8)\n\n### Requirements:\n- Use OutlinedButton\n- Use ONLY values from design system\n- Support optional icon"
+  },
+  "FE-014": {
+    "name": "Text Button",
+    "description": "Text-only button",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/app_text_button.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002"
+    ],
+    "exports": [
+      "AppTextButton"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create text button per DESIGN_SYSTEM.md.\n\n### Widget: AppTextButton\n\n```dart\nclass AppTextButton extends StatelessWidget {\n  final String text;\n  final VoidCallback? onPressed;\n  final IconData? icon;\n\n  const AppTextButton({\n    super.key,\n    required this.text,\n    this.onPressed,\n    this.icon,\n  });\n}\n```\n\n### Specifications:\n- No background\n- Text: bodyMedium with AppColors.primary\n- No padding (minimal)\n- Hover: underline\n\n### Requirements:\n- Use TextButton\n- Minimal styling\n- Support optional icon"
+  },
+  "FE-015": {
+    "name": "App Text Field",
+    "description": "Styled text input per DESIGN_SYSTEM.md",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/app_text_field.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-004"
+    ],
+    "exports": [
+      "AppTextField"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create text field exactly as defined in DESIGN_SYSTEM.md.\n\n### Widget: AppTextField\n\n```dart\nclass AppTextField extends StatelessWidget {\n  final String label;\n  final String? hint;\n  final TextEditingController? controller;\n  final bool obscureText;\n  final String? errorText;\n  final Widget? prefixIcon;\n  final Widget? suffixIcon;\n  final TextInputType? keyboardType;\n  final ValueChanged<String>? onChanged;\n  final bool enabled;\n  final int maxLines;\n\n  const AppTextField({\n    super.key,\n    required this.label,\n    this.hint,\n    this.controller,\n    this.obscureText = false,\n    this.errorText,\n    this.prefixIcon,\n    this.suffixIcon,\n    this.keyboardType,\n    this.onChanged,\n    this.enabled = true,\n    this.maxLines = 1,\n  });\n}\n```\n\n### Specifications:\n- Label: AppTextStyles.inputLabel above input\n- Gap between label and input: spacing8\n- Input text: AppTextStyles.inputText\n- Hint: AppTextStyles.inputHint\n- Border: 1px AppColors.borderLight\n- Focused border: 2px AppColors.primary\n- Error border: 1px AppColors.error\n- Border radius: AppRadius.medium\n- Content padding: horizontal spacing16, vertical spacing12\n- Fill color: AppColors.backgroundPrimary\n\n### Requirements:\n- Use Column with CrossAxisAlignment.start\n- Use ONLY values from design system\n- Match DESIGN_SYSTEM.md exactly"
+  },
+  "FE-016": {
+    "name": "App Card",
+    "description": "Card container",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/app_card.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-004",
+      "FE-005"
+    ],
+    "exports": [
+      "AppCard"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create card widget per DESIGN_SYSTEM.md.\n\n### Widget: AppCard\n\n```dart\nclass AppCard extends StatelessWidget {\n  final Widget child;\n  final EdgeInsets? padding;\n  final VoidCallback? onTap;\n\n  const AppCard({\n    super.key,\n    required this.child,\n    this.padding,\n    this.onTap,\n  });\n}\n```\n\n### Specifications:\n- Background: AppColors.backgroundSecondary\n- Border radius: AppRadius.large (12)\n- Shadow: AppShadows.small\n- Default padding: spacing16 all sides\n- If onTap provided, wrap in GestureDetector/InkWell\n\n### Requirements:\n- Use Container with BoxDecoration\n- Use ONLY values from design system"
+  },
+  "FE-017": {
+    "name": "Loading Indicator",
+    "description": "Loading spinner",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/loading_indicator.dart",
+    "depends_on": [
+      "FE-001"
+    ],
+    "exports": [
+      "LoadingIndicator"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create loading indicator widget.\n\n### Widget: LoadingIndicator\n\n```dart\nclass LoadingIndicator extends StatelessWidget {\n  final double size;\n  final Color? color;\n\n  const LoadingIndicator({\n    super.key,\n    this.size = 24,\n    this.color,\n  });\n}\n```\n\n### Specifications:\n- Use CircularProgressIndicator\n- Default color: AppColors.primary\n- Default size: 24\n- Stroke width: 2\n\n### Also create LoadingOverlay:\n\n```dart\nclass LoadingOverlay extends StatelessWidget {\n  final bool isLoading;\n  final Widget child;\n}\n```\n\nShows semi-transparent overlay with centered LoadingIndicator when isLoading is true."
+  },
+  "FE-018": {
+    "name": "Empty State",
+    "description": "Empty list placeholder",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/empty_state.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-006"
+    ],
+    "exports": [
+      "EmptyState"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create empty state placeholder widget.\n\n### Widget: EmptyState\n\n```dart\nclass EmptyState extends StatelessWidget {\n  final IconData icon;\n  final String title;\n  final String? description;\n  final String? actionText;\n  final VoidCallback? onAction;\n\n  const EmptyState({\n    super.key,\n    required this.icon,\n    required this.title,\n    this.description,\n    this.actionText,\n    this.onAction,\n  });\n}\n```\n\n### Specifications:\n- Centered Column\n- Icon: AppIcons.sizeXLarge (32), AppColors.textTertiary\n- Title: AppTextStyles.headingMedium, spacing16 below icon\n- Description: AppTextStyles.bodyMedium, AppColors.textSecondary, spacing8 below title\n- Action button (if provided): PrimaryButton, spacing24 below description\n\n### Requirements:\n- Use ONLY values from design system\n- All elements centered"
+  },
+  "FE-019": {
+    "name": "Error State",
+    "description": "Error display with retry",
+    "phase": 1,
+    "platform": "web",
+    "layer": "widget",
+    "output_path": "web/lib/core/widgets/error_state.dart",
+    "depends_on": [
+      "FE-001",
+      "FE-002",
+      "FE-012"
+    ],
+    "exports": [
+      "ErrorState"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create error state widget with retry option.\n\n### Widget: ErrorState\n\n```dart\nclass ErrorState extends StatelessWidget {\n  final String message;\n  final VoidCallback? onRetry;\n\n  const ErrorState({\n    super.key,\n    required this.message,\n    this.onRetry,\n  });\n}\n```\n\n### Specifications:\n- Centered Column\n- Icon: AppIcons.error, AppIcons.sizeXLarge, AppColors.error\n- Message: AppTextStyles.bodyLarge, centered, spacing16 below icon\n- Retry button (if provided): SecondaryButton with 'Try Again', spacing24 below message\n\n### Requirements:\n- Use ONLY values from design system\n- Show retry button only if onRetry provided"
+  },
+  "FE-020": {
+    "name": "User Entity",
+    "description": "User data model (Freezed)",
+    "phase": 1,
+    "platform": "web",
+    "layer": "entity",
+    "output_path": "web/lib/features/auth/domain/entities/user.dart",
+    "depends_on": [],
+    "exports": [
+      "User"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create User entity using Freezed.\n\n### Code:\n\n```dart\nimport 'package:freezed_annotation/freezed_annotation.dart';\n\npart 'user.freezed.dart';\npart 'user.g.dart';\n\n@freezed\nclass User with _$User {\n  const factory User({\n    required String id,\n    required String email,\n    required String fullName,\n    required bool isActive,\n    required DateTime createdAt,\n  }) = _User;\n\n  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);\n}\n```\n\n### Requirements:\n- Use Freezed for immutability\n- Include JSON serialization\n- Match backend UserResponse schema"
+  },
+  "FE-021": {
+    "name": "Auth Repository Interface",
+    "description": "Abstract auth repository",
+    "phase": 1,
+    "platform": "web",
+    "layer": "repository",
+    "output_path": "web/lib/features/auth/domain/repositories/auth_repository.dart",
+    "depends_on": [
+      "FE-008",
+      "FE-020"
+    ],
+    "exports": [
+      "AuthRepository"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create abstract auth repository interface.\n\n### Code:\n\n```dart\nimport '../entities/user.dart';\nimport '../../../../core/types/result.dart';\n\nabstract class AuthRepository {\n  Future<Result<User>> register({\n    required String email,\n    required String password,\n    required String fullName,\n  });\n\n  Future<Result<User>> login({\n    required String email,\n    required String password,\n  });\n\n  Future<Result<void>> logout();\n\n  Future<Result<User>> getCurrentUser();\n\n  Future<Result<User>> updateProfile({\n    String? fullName,\n    String? currentPassword,\n    String? newPassword,\n  });\n\n  Future<Result<void>> refreshToken();\n\n  Future<bool> hasValidToken();\n}\n```\n\n### Requirements:\n- Use Result type from FE-008\n- Use User entity from FE-020\n- All methods return Future"
+  },
+  "FE-022": {
+    "name": "Auth Repository Implementation",
+    "description": "Auth repository with API calls",
+    "phase": 1,
+    "platform": "web",
+    "layer": "repository",
+    "output_path": "web/lib/features/auth/data/repositories/auth_repository_impl.dart",
+    "depends_on": [
+      "FE-009",
+      "FE-010",
+      "FE-021"
+    ],
+    "exports": [
+      "AuthRepositoryImpl"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create auth repository implementation.\n\n### Class: AuthRepositoryImpl implements AuthRepository\n\n### Constructor:\n```dart\nAuthRepositoryImpl({\n  required ApiClient apiClient,\n  required SecureStorage storage,\n});\n```\n\n### Implement all methods from AuthRepository:\n\n1. **register** - POST /auth/register, save tokens, return user\n2. **login** - POST /auth/login, save tokens, return user\n3. **logout** - POST /auth/logout, clear tokens\n4. **getCurrentUser** - GET /auth/me\n5. **updateProfile** - PUT /auth/me\n6. **refreshToken** - POST /auth/refresh with stored refresh token\n7. **hasValidToken** - Check if access token exists\n\n### Requirements:\n- Use ApiClient from FE-009\n- Use SecureStorage from FE-010\n- Save tokens on login/register\n- Clear tokens on logout\n- Handle errors with Result type"
+  },
+  "FE-023": {
+    "name": "Auth Provider",
+    "description": "Riverpod auth state management",
+    "phase": 1,
+    "platform": "web",
+    "layer": "provider",
+    "output_path": "web/lib/features/auth/presentation/providers/auth_provider.dart",
+    "depends_on": [
+      "FE-022"
+    ],
+    "exports": [
+      "authProvider",
+      "AuthState",
+      "AuthNotifier"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create Riverpod provider for auth state.\n\n### State:\n\n```dart\n@freezed\nclass AuthState with _$AuthState {\n  const factory AuthState.initial() = _Initial;\n  const factory AuthState.loading() = _Loading;\n  const factory AuthState.authenticated(User user) = _Authenticated;\n  const factory AuthState.unauthenticated() = _Unauthenticated;\n  const factory AuthState.error(String message) = _Error;\n}\n```\n\n### Notifier:\n\n```dart\nclass AuthNotifier extends StateNotifier<AuthState> {\n  final AuthRepository _authRepository;\n\n  AuthNotifier(this._authRepository) : super(const AuthState.initial());\n\n  Future<void> checkAuthStatus() async {...}\n  Future<void> login(String email, String password) async {...}\n  Future<void> register(String email, String password, String fullName) async {...}\n  Future<void> logout() async {...}\n  Future<void> updateProfile(...) async {...}\n}\n```\n\n### Provider:\n\n```dart\nfinal authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {\n  return AuthNotifier(ref.watch(authRepositoryProvider));\n});\n```\n\n### Requirements:\n- Use Freezed for state\n- Use StateNotifier for notifier\n- Check auth status on init\n- Handle all auth operations"
+  },
+  "FE-024": {
+    "name": "Login Screen",
+    "description": "Login form UI",
+    "phase": 1,
+    "platform": "web",
+    "layer": "screen",
+    "output_path": "web/lib/features/auth/presentation/screens/login_screen.dart",
+    "depends_on": [
+      "FE-012",
+      "FE-015",
+      "FE-023"
+    ],
+    "exports": [
+      "LoginScreen"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create login screen UI.\n\n### Widget: LoginScreen\n\n### Layout:\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                         \u2502\n\u2502  Welcome Back                           \u2502  \u2190 headingLarge\n\u2502  Sign in to continue                    \u2502  \u2190 bodyMedium\n\u2502                                         \u2502\n\u2502  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500  \u2502  \u2190 spacing32\n\u2502                                         \u2502\n\u2502  Email                                  \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502 \ud83d\udce7  Enter your email            \u2502   \u2502  \u2190 AppTextField\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502  \u2190 spacing16\n\u2502  Password                               \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502 \ud83d\udd12  Enter password          \ud83d\udc41  \u2502   \u2502  \u2190 AppTextField\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502             Forgot Password?            \u2502  \u2190 AppTextButton\n\u2502                                         \u2502  \u2190 spacing32\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502           LOGIN                 \u2502   \u2502  \u2190 PrimaryButton\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502    Don't have account? Register         \u2502\n\u2502                                         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### Requirements:\n- Use AppTextField, PrimaryButton, AppTextButton\n- Password field with visibility toggle\n- Show loading state during login\n- Show error messages\n- Navigate to register screen\n- Navigate to dashboard on success\n- Use authProvider from FE-023"
+  },
+  "FE-025": {
+    "name": "Register Screen",
+    "description": "Registration form UI",
+    "phase": 1,
+    "platform": "web",
+    "layer": "screen",
+    "output_path": "web/lib/features/auth/presentation/screens/register_screen.dart",
+    "depends_on": [
+      "FE-012",
+      "FE-015",
+      "FE-023"
+    ],
+    "exports": [
+      "RegisterScreen"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create registration screen UI.\n\n### Widget: RegisterScreen\n\n### Layout:\n```\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502                                         \u2502\n\u2502  Create Account                         \u2502  \u2190 headingLarge\n\u2502  Get started with CodeGen Manager       \u2502  \u2190 bodyMedium\n\u2502                                         \u2502\n\u2502  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500  \u2502\n\u2502                                         \u2502\n\u2502  Full Name                              \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502 \ud83d\udc64  Enter your name             \u2502   \u2502\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502  Email                                  \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502 \ud83d\udce7  Enter your email            \u2502   \u2502\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502  Password                               \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502 \ud83d\udd12  Create password         \ud83d\udc41  \u2502   \u2502\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502  \u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510   \u2502\n\u2502  \u2502         CREATE ACCOUNT          \u2502   \u2502  \u2190 PrimaryButton\n\u2502  \u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518   \u2502\n\u2502                                         \u2502\n\u2502    Already have account? Sign in        \u2502\n\u2502                                         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n```\n\n### Requirements:\n- Use AppTextField, PrimaryButton, AppTextButton\n- Password validation (min 8 chars)\n- Show loading state\n- Show error messages\n- Navigate to login screen\n- Navigate to dashboard on success"
+  },
+  "FE-026": {
+    "name": "App Router",
+    "description": "GoRouter configuration with auth guards",
+    "phase": 1,
+    "platform": "web",
+    "layer": "router",
+    "output_path": "web/lib/core/router/app_router.dart",
+    "depends_on": [
+      "FE-023",
+      "FE-024",
+      "FE-025"
+    ],
+    "exports": [
+      "appRouter",
+      "AppRoutes"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create GoRouter configuration.\n\n### Routes:\n\n```dart\nabstract class AppRoutes {\n  static const splash = '/';\n  static const login = '/login';\n  static const register = '/register';\n  static const dashboard = '/dashboard';\n}\n```\n\n### Router:\n\n```dart\nfinal appRouter = GoRouter(\n  initialLocation: AppRoutes.splash,\n  redirect: (context, state) {\n    // Check auth state\n    // Redirect to login if not authenticated\n    // Redirect to dashboard if authenticated and on auth pages\n  },\n  routes: [\n    GoRoute(\n      path: AppRoutes.splash,\n      builder: (context, state) => const SplashScreen(),\n    ),\n    GoRoute(\n      path: AppRoutes.login,\n      builder: (context, state) => const LoginScreen(),\n    ),\n    GoRoute(\n      path: AppRoutes.register,\n      builder: (context, state) => const RegisterScreen(),\n    ),\n    GoRoute(\n      path: AppRoutes.dashboard,\n      builder: (context, state) => const DashboardScreen(),\n    ),\n  ],\n);\n```\n\n### Requirements:\n- Use GoRouter package\n- Implement auth redirect logic\n- Create SplashScreen placeholder\n- Create DashboardScreen placeholder"
+  },
+  "FE-027": {
+    "name": "App Entry Point",
+    "description": "Main app widget with providers",
+    "phase": 1,
+    "platform": "web",
+    "layer": "core",
+    "output_path": "web/lib/main.dart",
+    "depends_on": [
+      "FE-007",
+      "FE-026"
+    ],
+    "exports": [
+      "main",
+      "MyApp"
+    ],
+    "status": "pending",
+    "detailed_requirements": "Create main app entry point.\n\n### Code:\n\n```dart\nimport 'package:flutter/material.dart';\nimport 'package:flutter_riverpod/flutter_riverpod.dart';\n\nimport 'core/theme/app_theme.dart';\nimport 'core/router/app_router.dart';\n\nvoid main() {\n  WidgetsFlutterBinding.ensureInitialized();\n  runApp(\n    const ProviderScope(\n      child: MyApp(),\n    ),\n  );\n}\n\nclass MyApp extends StatelessWidget {\n  const MyApp({super.key});\n\n  @override\n  Widget build(BuildContext context) {\n    return MaterialApp.router(\n      title: 'CodeGen Manager',\n      debugShowCheckedModeBanner: false,\n      theme: AppTheme.light,\n      routerConfig: appRouter,\n    );\n  }\n}\n```\n\n### Requirements:\n- Wrap with ProviderScope for Riverpod\n- Use AppTheme.light\n- Use appRouter for navigation\n- Disable debug banner"
+  }
+}
