@@ -16,7 +16,8 @@ from alembic import context
 # Import Base and all models
 from app.core.database import Base, DATABASE_URL
 from app.models.user import User
-from app.models.template import Template  # Import all models here
+from app.models.template import Template
+from app.models.project import Project  # Import all models here
 
 # this is the Alembic Config object
 config = context.config

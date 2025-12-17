@@ -453,6 +453,13 @@ async def get_item(
 | 2025-12-17 | backend/app/services/template.py | Created | ✅ |
 | 2025-12-17 | backend/app/api/v1/endpoints/templates.py | Created | ✅ |
 | 2025-12-17 | backend/alembic/versions/002_templates.py | Created | ✅ |
+| 2025-12-17 | backend/app/models/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/schemas/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/codegen.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/endpoints/projects.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/versions/003_projects.py | Created | ✅ |
 
 ---
 
