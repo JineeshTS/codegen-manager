@@ -497,3 +497,7 @@ After generating ANY file:
 | 2025-12-17 | web/lib/core/theme/app_shadows.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/theme/app_icons.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/theme/app_theme.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/types/result.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/network/api_client.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/storage/secure_storage.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/config/env_config.dart | Created | ✅ |
