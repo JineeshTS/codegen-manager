@@ -501,3 +501,11 @@ After generating ANY file:
 | 2025-12-17 | web/lib/core/network/api_client.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/storage/secure_storage.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/config/env_config.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/primary_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/secondary_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_text_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_text_field.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_card.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/loading_indicator.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/empty_state.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/error_state.dart | Created | ✅ |
