@@ -132,10 +132,11 @@
 - **Used By:** Entire backend
 
 ### backend/app/core/database.py
-- **Status:** 📋 To Create First
-- **Exports:** `engine`, `AsyncSessionLocal`, `Base`, `get_db`
+- **Status:** ✅ Implemented
+- **Exports:** `engine`, `async_session`, `Base`, `get_db`
 - **Depends On:** sqlalchemy, asyncpg
 - **Used By:** All repositories
+- **Methods:** `get_db()` - FastAPI dependency for database sessions
 
 ### backend/app/core/security.py
 - **Status:** 📋 To Create First
@@ -415,7 +416,8 @@ async def get_item(
 
 | Date | File | Action | Verified |
 |------|------|--------|----------|
-| [DATE] | CODE_REGISTRY.md | Created | ✅ |
+| 2025-12-17 | CODE_REGISTRY.md | Created | ✅ |
+| 2025-12-17 | backend/app/core/database.py | Created | ✅ |
 
 ---
 
