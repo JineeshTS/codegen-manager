@@ -1,0 +1,56 @@
+name: codegen_manager
+description: AI-Powered Code Generation Management System
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Code Generation
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+
+  # Networking
+  dio: ^5.4.3+1
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  shared_preferences: ^2.2.3
+
+  # Navigation
+  go_router: ^14.2.0
+
+  # UI
+  flutter_screenutil: ^5.9.0
+  cached_network_image: ^3.3.1
+  lucide_icons: ^0.294.0
+
+  # Utils
+  intl: ^0.19.0
+  logger: ^2.2.0
+  connectivity_plus: ^6.0.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # Code Generation
+  build_runner: ^2.4.9
+  freezed: ^2.5.2
+  json_serializable: ^6.7.1
+  riverpod_generator: ^2.4.0
+
+  # Testing
+  mockito: ^5.4.4
+
+flutter:
+  uses-material-design: true

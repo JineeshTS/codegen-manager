@@ -126,9 +126,10 @@
 ## Core Layer (Backend)
 
 ### backend/app/core/config.py
-- **Status:** 📋 To Create First
+- **Status:** ✅ Implemented
 - **Exports:** `Settings`, `settings`
-- **Contains:** All environment configuration
+- **Contains:** All environment configuration (DATABASE_URL, SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, CORS_ORIGINS, DEBUG, ENVIRONMENT, APP_NAME)
+- **Depends On:** pydantic, pydantic-settings
 - **Used By:** Entire backend
 
 ### backend/app/core/database.py
@@ -139,10 +140,12 @@
 - **Methods:** `get_db()` - FastAPI dependency for database sessions
 
 ### backend/app/core/security.py
-- **Status:** 📋 To Create First
-- **Exports:** `get_password_hash`, `verify_password`, `create_access_token`, `create_refresh_token`, `decode_token`
-- **Depends On:** passlib, python-jose
+- **Status:** ✅ Implemented
+- **Task:** BE-003
+- **Exports:** `hash_password`, `verify_password`, `create_access_token`, `verify_token`
+- **Depends On:** BE-002, passlib, python-jose
 - **Used By:** AuthService, Dependencies
+- **Methods:** Password hashing with bcrypt, JWT token creation and verification
 
 ### backend/app/core/dependencies.py
 - **Status:** 📋 To Create First
@@ -151,9 +154,11 @@
 - **Used By:** All protected endpoints
 
 ### backend/app/core/exceptions.py
-- **Status:** 📋 To Create First
-- **Exports:** `NotFoundError`, `ConflictError`, `UnauthorizedError`, `ValidationError`
-- **Used By:** All services
+- **Status:** ✅ Implemented
+- **Task:** BE-005
+- **Exports:** `AppException`, `NotFoundException`, `UnauthorizedException`, `ValidationException`, `handlers`
+- **Used By:** All services, FastAPI app
+- **Description:** Custom exception classes with FastAPI handlers for consistent error responses
 
 ### backend/app/models/base.py
 - **Status:** 📋 To Create First
@@ -162,11 +167,13 @@
 - **Used By:** All models
 
 ### backend/app/repositories/base.py
-- **Status:** 📋 To Create First
+- **Status:** ✅ Implemented
+- **Task:** BE-004
 - **Exports:** `BaseRepository[T]`
-- **Methods:** `get()`, `get_all()`, `create()`, `update()`, `delete()`
-- **Depends On:** sqlalchemy
+- **Methods:** `get(id)`, `get_all(skip, limit)`, `create(obj)`, `update(obj)`, `delete(id)`
+- **Depends On:** BE-001, sqlalchemy
 - **Used By:** All repositories
+- **Description:** Generic async CRUD repository with TypeVar for model type safety
 
 ### backend/app/schemas/base.py
 - **Status:** 📋 To Create First
@@ -214,22 +221,30 @@
 ### Backend Files
 
 #### backend/app/models/user.py
-- **Status:** 📋 Pending
+- **Status:** ✅ Implemented
+- **Task:** BE-006
 - **Exports:** `User`
-- **Fields:** `id`, `email`, `hashed_password`, `full_name`, `is_active`, `is_superuser`, `created_at`, `updated_at`
+- **Fields:** `id` (UUID), `email` (String, unique, indexed), `hashed_password` (String), `full_name` (String), `is_active` (Boolean), `created_at` (DateTime), `updated_at` (DateTime)
+- **Depends On:** BE-001
+- **Description:** SQLAlchemy User model with UUID primary key and timestamps
 
 #### backend/app/schemas/auth.py
-- **Status:** 📋 Pending
-- **Exports:** `LoginRequest`, `RegisterRequest`, `TokenResponse`, `RefreshRequest`
+- **Status:** ✅ Implemented
+- **Task:** BE-007
+- **Exports:** `RegisterRequest`, `LoginRequest`, `TokenResponse`, `UserResponse`
+- **Description:** Pydantic schemas for authentication with validation and serialization
 
 #### backend/app/schemas/user.py
 - **Status:** 📋 Pending
 - **Exports:** `UserCreate`, `UserUpdate`, `UserResponse`
 
 #### backend/app/repositories/user.py
-- **Status:** 📋 Pending
+- **Status:** ✅ Implemented
+- **Task:** BE-008
 - **Exports:** `UserRepository`
-- **Methods:** `get_by_email()`
+- **Methods:** `get_by_email(email: str) -> Optional[User]`
+- **Depends On:** BE-004, BE-006
+- **Description:** User repository extending BaseRepository with email lookup
 
 #### backend/app/services/auth.py
 - **Status:** 📋 Pending
@@ -418,6 +433,33 @@ async def get_item(
 |------|------|--------|----------|
 | 2025-12-17 | CODE_REGISTRY.md | Created | ✅ |
 | 2025-12-17 | backend/app/core/database.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/config.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/security.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/base.py | Created | ✅ |
+| 2025-12-17 | backend/app/core/exceptions.py | Created | ✅ |
+| 2025-12-17 | backend/app/models/user.py | Created | ✅ |
+| 2025-12-17 | backend/app/schemas/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/user.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/dependencies.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/endpoints/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/router.py | Created | ✅ |
+| 2025-12-17 | backend/app/main.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/env.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/versions/001_initial.py | Created | ✅ |
+| 2025-12-17 | backend/app/models/template.py | Created | ✅ |
+| 2025-12-17 | backend/app/schemas/template.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/template.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/template.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/endpoints/templates.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/versions/002_templates.py | Created | ✅ |
+| 2025-12-17 | backend/app/models/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/schemas/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/codegen.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/services/project.py | Created | ✅ |
+| 2025-12-17 | backend/app/api/v1/endpoints/projects.py | Created | ✅ |
+| 2025-12-17 | backend/alembic/versions/003_projects.py | Created | ✅ |
 
 ---
 
@@ -446,3 +488,43 @@ After generating ANY file:
 □ Run flutter analyze / python lint
 □ Verify imports resolve
 ```
+| 2025-12-17 | web/pubspec.yaml | Created | ✅ |
+| 2025-12-17 | web/analysis_options.yaml | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_colors.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_typography.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_spacing.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_radius.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_shadows.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_icons.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/theme/app_theme.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/types/result.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/network/api_client.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/storage/secure_storage.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/config/env_config.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/primary_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/secondary_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_text_button.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_text_field.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/app_card.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/loading_indicator.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/empty_state.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/error_state.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/domain/entities/user.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/domain/repositories/auth_repository.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/data/repositories/auth_repository_impl.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/providers/auth_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/screens/login_screen.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/auth/presentation/screens/register_screen.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/router/app_router.dart | Created | ✅ |
+| 2025-12-17 | web/lib/main.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/domain/entities/project.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/domain/repositories/project_repository.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/data/repositories/project_repository_impl.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/providers/projects_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/providers/project_detail_provider.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/project_card.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/progress_bar.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/platform_badge.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/platform_selector.dart | Created | ✅ |
+| 2025-12-17 | web/lib/features/projects/presentation/widgets/github_connect_dialog.dart | Created | ✅ |
+| 2025-12-17 | web/lib/core/widgets/delete_confirmation_dialog.dart | Created | ✅ |
