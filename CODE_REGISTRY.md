@@ -239,9 +239,12 @@
 - **Exports:** `UserCreate`, `UserUpdate`, `UserResponse`
 
 #### backend/app/repositories/user.py
-- **Status:** 📋 Pending
+- **Status:** ✅ Implemented
+- **Task:** BE-008
 - **Exports:** `UserRepository`
-- **Methods:** `get_by_email()`
+- **Methods:** `get_by_email(email: str) -> Optional[User]`
+- **Depends On:** BE-004, BE-006
+- **Description:** User repository extending BaseRepository with email lookup
 
 #### backend/app/services/auth.py
 - **Status:** 📋 Pending
@@ -436,6 +439,7 @@ async def get_item(
 | 2025-12-17 | backend/app/core/exceptions.py | Created | ✅ |
 | 2025-12-17 | backend/app/models/user.py | Created | ✅ |
 | 2025-12-17 | backend/app/schemas/auth.py | Created | ✅ |
+| 2025-12-17 | backend/app/repositories/user.py | Created | ✅ |
 
 ---
 
