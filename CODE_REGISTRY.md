@@ -528,3 +528,6 @@ After generating ANY file:
 | 2025-12-17 | web/lib/features/projects/presentation/widgets/platform_selector.dart | Created | ✅ |
 | 2025-12-17 | web/lib/features/projects/presentation/widgets/github_connect_dialog.dart | Created | ✅ |
 | 2025-12-17 | web/lib/core/widgets/delete_confirmation_dialog.dart | Created | ✅ |
+| 2026-01-05 | web/lib/features/projects/presentation/screens/project_detail_screen.dart | Created | ✅ |
+| 2026-01-05 | web/lib/features/projects/presentation/screens/edit_project_screen.dart | Created | ✅ |
+| 2026-01-05 | web/lib/core/router/app_router.dart | Updated | ✅ |

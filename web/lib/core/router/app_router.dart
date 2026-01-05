@@ -4,6 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/projects/presentation/screens/dashboard_screen.dart';
+import '../../features/projects/presentation/screens/create_project_screen.dart';
+import '../../features/projects/presentation/screens/project_detail_screen.dart';
+import '../../features/projects/presentation/screens/edit_project_screen.dart';
 
 /// Application router with authentication guards.
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -26,7 +30,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       // Redirect to dashboard if authenticated and trying to access auth screens
       if (isAuthenticated && (isLoggingIn || isRegistering)) {
-        return '/';
+        return '/projects';
       }
 
       // Redirect to login if not authenticated and not on auth screens
@@ -38,9 +42,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      // ═══════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
       // AUTH ROUTES
-      // ═══════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
       GoRoute(
         path: '/login',
         name: 'login',
@@ -58,28 +62,64 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // ═══════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
       // MAIN APP ROUTES
-      // ═══════════════════════════════════════════════════════════
+      // ═══════════════════════════════════════════════════════════════
+
+      // Root redirect to projects
       GoRoute(
         path: '/',
-        name: 'home',
-        pageBuilder: (context, state) => MaterialPage(
-          key: state.pageKey,
-          child: const Scaffold(
-            body: Center(
-              child: Text('Dashboard - Coming Soon'),
-            ),
-          ),
-        ),
+        redirect: (context, state) => '/projects',
       ),
 
-      // Add more routes here as features are implemented
-      // GoRoute(
-      //   path: '/projects',
-      //   name: 'projects',
-      //   pageBuilder: (context, state) => ...
-      // ),
+      // ═══════════════════════════════════════════════════════════════
+      // PROJECTS ROUTES
+      // ═══════════════════════════════════════════════════════════════
+      GoRoute(
+        path: '/projects',
+        name: 'projects',
+        pageBuilder: (context, state) => MaterialPage(
+          key: state.pageKey,
+          child: const DashboardScreen(),
+        ),
+        routes: [
+          // Create new project
+          GoRoute(
+            path: 'create',
+            name: 'createProject',
+            pageBuilder: (context, state) => MaterialPage(
+              key: state.pageKey,
+              child: const CreateProjectScreen(),
+            ),
+          ),
+          // Project detail
+          GoRoute(
+            path: ':projectId',
+            name: 'projectDetail',
+            pageBuilder: (context, state) {
+              final projectId = state.pathParameters['projectId']!;
+              return MaterialPage(
+                key: state.pageKey,
+                child: ProjectDetailScreen(projectId: projectId),
+              );
+            },
+            routes: [
+              // Edit project
+              GoRoute(
+                path: 'edit',
+                name: 'editProject',
+                pageBuilder: (context, state) {
+                  final projectId = state.pathParameters['projectId']!;
+                  return MaterialPage(
+                    key: state.pageKey,
+                    child: EditProjectScreen(projectId: projectId),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
@@ -91,7 +131,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             Text('Page not found: ${state.matchedLocation}'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => context.go('/'),
+              onPressed: () => context.go('/projects'),
               child: const Text('Go Home'),
             ),
           ],
